@@ -1,0 +1,4 @@
+Title,Test Document — Smart Office Assistant F7 Check
+Document Type,Summary (TEST)
+Note,This is a TEST file created to verify F7 error handling (unsupported file types) for the Smart Office Document Assistant project.
+Expected Result,REJECTED by the app (unsupported file type)

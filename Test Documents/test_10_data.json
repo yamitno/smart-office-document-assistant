@@ -1,0 +1,6 @@
+{
+  "title": "Test Document — Smart Office Assistant F7 Check",
+  "document_type": "Data Export (TEST)",
+  "note": "This is a TEST file created to verify F7 error handling (unsupported file types) for the Smart Office Document Assistant project.",
+  "expected_result": "REJECTED by the app (unsupported file type)"
+}

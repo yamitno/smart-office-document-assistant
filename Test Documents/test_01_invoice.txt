@@ -1,0 +1,7 @@
+Test Document — Smart Office Assistant F7 Check
+
+Document Type: Invoice (TEST)
+Sender: ABC Test Supplies Ltd.
+This is a TEST file created to verify F7 error handling (unsupported file types) for the Smart Office Document Assistant project.
+Amount Due: $1,250.00 — Payment due within 14 days.
+This is a TEST invoice, not a real transaction.

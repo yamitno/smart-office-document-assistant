@@ -18,12 +18,12 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Design pass — blue accent (#2563eb), light blue background
 
 ## Milestone 2 — Workflow B (`GET /documents`)
-- [ ] Confirm the Workflow B webhook is live and returns the documented shape
-- [ ] Update `client.js`: `getDocuments()` → real `fetch(`${VITE_API_BASE_URL}/documents`)` with the `x-api-key` header
-- [ ] Handle `401` / `500` gracefully (a clear message on screen, not a raw JSON dump)
-- [ ] Add the "Refresh" button on the Dashboard (SPEC 2.1) to re-call `GET /documents`
-- [ ] Verify CORS allows `http://localhost:5173` during dev
-- [ ] Keep `mock.js` in place as a fallback / for offline dev
+- [x] Confirm the Workflow B webhook is live and returns the documented shape
+- [x] Update `client.js`: `getDocuments()` → real `fetch(`${VITE_API_BASE_URL}/yamit-documents`)` with the `x-api-key` header
+- [x] Handle `401` / `500` gracefully (a clear message on screen, not a raw JSON dump)
+- [x] Add the "Refresh" button on the Dashboard (SPEC 2.1) to re-call `GET /documents`
+- [ ] Verify CORS allows `http://localhost:5173` during dev (pending manual check against a real `.env`)
+- [x] Keep `mock.js` in place as a fallback / for offline dev (auto-fallback when `.env` is missing)
 
 ## Milestone 3 — Workflow A (`POST /process-document`)
 - [ ] Confirm the production URL once the workflow is imported (currently TBD in CONTRACT.md)

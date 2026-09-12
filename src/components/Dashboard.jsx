@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getDocuments } from '../api/client.js'
+import { useDocuments } from '../hooks/useDocuments.js'
 import {
   translateUrgency,
   translateStatus,
@@ -30,7 +30,7 @@ function StatusBadge({ value }) {
 }
 
 export default function Dashboard() {
-  const documents = useMemo(() => getDocuments(), [])
+  const { documents, loading, error, refresh } = useDocuments()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const navigate = useNavigate()
@@ -50,7 +50,12 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1>לוח בקרה - מסמכים</h1>
+      <div className="dashboard-header">
+        <h1>לוח בקרה - מסמכים</h1>
+        <button className="refresh-button" onClick={refresh} disabled={loading}>
+          {loading ? 'טוען...' : 'רענון'}
+        </button>
+      </div>
 
       <div className="dashboard-controls">
         <input
@@ -73,6 +78,8 @@ export default function Dashboard() {
           ))}
         </select>
       </div>
+
+      {error && <p className="error-banner">{error}</p>}
 
       <div className="table-wrapper">
         <table className="doc-table">
@@ -103,7 +110,7 @@ export default function Dashboard() {
                 <td>{translateDepartment(doc['Department'])}</td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {!loading && filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="empty-row">
                   לא נמצאו מסמכים תואמים.

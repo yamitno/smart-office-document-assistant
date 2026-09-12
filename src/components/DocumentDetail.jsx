@@ -1,6 +1,5 @@
-import { useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getDocuments } from '../api/client.js'
+import { useDocuments } from '../hooks/useDocuments.js'
 import {
   translateUrgency,
   translateStatus,
@@ -27,8 +26,25 @@ const FIELDS = [
 export default function DocumentDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const documents = useMemo(() => getDocuments(), [])
+  const { documents, loading, error } = useDocuments()
   const doc = documents[Number(id)]
+
+  if (loading) {
+    return (
+      <div className="detail-page">
+        <p>טוען...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="detail-page">
+        <p className="error-banner">{error}</p>
+        <Link to="/">חזרה ללוח הבקרה</Link>
+      </div>
+    )
+  }
 
   if (!doc) {
     return (

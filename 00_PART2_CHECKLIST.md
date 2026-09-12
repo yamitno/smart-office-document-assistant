@@ -26,12 +26,12 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Keep `mock.js` in place as a fallback / for offline dev (auto-fallback when `.env` is missing)
 
 ## Milestone 3 — Workflow A (`POST /process-document`)
-- [ ] Confirm the production URL once the workflow is imported (currently TBD in CONTRACT.md)
-- [ ] `client.js`: add `uploadDocument(file)` → `POST` multipart/form-data with `x-api-key`
-- [ ] `Upload.jsx`: wire the "Send" button to `uploadDocument`, add a loading state while n8n processes
-- [ ] Show the extraction result (summary, urgency) on success
-- [ ] Show a clear error message on failure (`400` no file / `401` / `500`)
-- [ ] Link back to the Dashboard after a successful upload
+- [x] Confirm the production URL and request shape (JSON + base64, not multipart — see CONTRACT.md, confirmed Sep 12)
+- [x] `client.js`: add `processDocument(file)` → `POST` JSON `{ file_base64, file_name, mime_type }` with `x-api-key`
+- [x] `Upload.jsx`: wire the "שליחה" button to `processDocument`, add a loading state while n8n processes
+- [x] Show the extraction result (document type, sender, summary, urgency badge, deadline, department) on success
+- [x] Show a clear error message on failure (`401` / other) instead of a raw JSON dump
+- [x] Link back to the Dashboard after a successful upload
 
 ## Milestone 4 — Workflow C (`POST /review`)
 - [ ] Confirm the production URL, and how a row is identified (`Document ID` vs `File Name` — see the open question in CONTRACT.md)

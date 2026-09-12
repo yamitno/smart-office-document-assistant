@@ -1,16 +1,23 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { processDocument } from '../api/client.js'
+import UrgencyBadge from './UrgencyBadge.jsx'
+import { translateDocumentType, translateDepartment } from '../utils/labels.js'
 import './Upload.css'
 
 export default function Upload() {
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [sent, setSent] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
   const inputRef = useRef(null)
 
   function handleFiles(fileList) {
     if (fileList && fileList.length > 0) {
       setFile(fileList[0])
-      setSent(false)
+      setResult(null)
+      setError(null)
     }
   }
 
@@ -20,8 +27,19 @@ export default function Upload() {
     handleFiles(e.dataTransfer.files)
   }
 
-  function handleSend() {
-    setSent(true)
+  async function handleSend() {
+    if (!file) return
+    setIsUploading(true)
+    setError(null)
+    setResult(null)
+    try {
+      const doc = await processDocument(file)
+      setResult(doc)
+    } catch (err) {
+      setError(err.message || 'אירעה שגיאה בעיבוד המסמך.')
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   return (
@@ -54,14 +72,59 @@ export default function Upload() {
         )}
       </div>
 
-      <button className="send-button" onClick={handleSend} disabled={!file}>
+      <button className="send-button" onClick={handleSend} disabled={!file || isUploading}>
         שליחה
       </button>
 
-      {sent && (
+      {isUploading && (
         <p className="placeholder-note">
-          Upload will connect to Workflow A in a later milestone.
+          מעבד את המסמך... (זה יכול לקחת עד 15 שניות)
         </p>
+      )}
+
+      {error && <p className="error-banner">{error}</p>}
+
+      {result && (
+        <div className="result-card">
+          <h2>המסמך עובד בהצלחה</h2>
+          <div className="result-row">
+            <span className="result-label">סוג מסמך</span>
+            <span>{translateDocumentType(result['Document Type'])}</span>
+          </div>
+          <div className="result-row">
+            <span className="result-label">שולח / חברה</span>
+            <span>{result['Sender / Company']}</span>
+          </div>
+          <div className="result-row">
+            <span className="result-label">תקציר</span>
+            <span>{result['Summary']}</span>
+          </div>
+          <div className="result-row">
+            <span className="result-label">דחיפות</span>
+            <UrgencyBadge value={result['Urgency']} />
+          </div>
+          <div className="result-row">
+            <span className="result-label">מועד אחרון</span>
+            <span>{result['Deadline']}</span>
+          </div>
+          <div className="result-row">
+            <span className="result-label">מחלקה</span>
+            <span>{translateDepartment(result['Department'])}</span>
+          </div>
+          {result['File Link'] && (
+            <a
+              className="file-link"
+              href={result['File Link']}
+              target="_blank"
+              rel="noreferrer"
+            >
+              פתיחת הקובץ ב-Google Drive
+            </a>
+          )}
+          <Link className="back-to-dashboard" to="/">
+            חזרה ללוח הבקרה
+          </Link>
+        </div>
       )}
     </div>
   )

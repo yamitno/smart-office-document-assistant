@@ -1,24 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDocuments } from '../hooks/useDocuments.js'
+import UrgencyBadge from './UrgencyBadge.jsx'
 import {
-  translateUrgency,
   translateStatus,
   translateDocumentType,
   translateDepartment,
 } from '../utils/labels.js'
 import './Dashboard.css'
-
-const URGENCY_CLASS = {
-  High: 'badge-high',
-  Medium: 'badge-medium',
-  Low: 'badge-low',
-}
-
-function UrgencyBadge({ value }) {
-  const className = URGENCY_CLASS[value] || 'badge-neutral'
-  return <span className={`badge ${className}`}>{translateUrgency(value) || 'לא ידוע'}</span>
-}
 
 function StatusBadge({ value }) {
   const isProcessed = value === 'Processed'

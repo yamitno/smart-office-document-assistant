@@ -56,6 +56,30 @@ button {
   font-family: inherit;
 }
 
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.badge-high {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.badge-medium {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.badge-low,
+.badge-neutral {
+  background: var(--muted-bg);
+  color: var(--muted);
+}
+
 #root {
   min-height: 100svh;
   display: flex;

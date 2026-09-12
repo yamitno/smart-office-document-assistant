@@ -50,8 +50,20 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 ## 2. Workflow A — Process Document
 
 - **Method / Path:** `POST /process-document`
-- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-process-document` *(to be confirmed once imported)*
-- **Request body:** the uploaded file (multipart/form-data, field name `file`) — or base64, depending on how the Webhook node is configured
+- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-process-document` ✅ *(confirmed active — tested Sep 12)*
+- **Request body:** JSON (NOT multipart/form-data) with exactly 3 fields, confirmed by testing the live webhook:
+
+```json
+{ "file_base64": "<base64-encoded file content>", "file_name": "invoice.txt", "mime_type": "text/plain" }
+```
+
+  `mime_type` determines routing inside the workflow: `application/pdf` → PDF extraction branch, `text/plain` → plain text branch, anything else → "unsupported format" branch. `file_name` and `mime_type` are both required (the workflow's "Convert Base64 to File" node and its file-type Switch both read them) — don't omit them even though they weren't in the original plan.
+- **Workflow bugs found + fixed (Sep 12) — Workflow A now confirmed fully working end-to-end:**
+  1. The Webhook node nests the incoming JSON body under a `body` key (n8n's default behavior — the item looks like `{ headers, params, query, body }`), but the "Convert Base64 to File" node was reading fields from the top level (`$json.file_base64` instead of `$json.body.file_base64`). Fixed by pointing that node's 3 fields at `$json.body.*`.
+  2. After "Convert Base64 to File" runs, `$json` becomes **empty** — the node moves everything into a binary property (named `data`) and does not preserve the other JSON fields. So the "Route by File Type" Switch node (which runs right after) can't read `$json.body.mime_type` either — it has to read the file's own binary metadata instead: **`{{ $binary.data.mimeType }}`**. Fixed both routing rules (PDF / text) to use that.
+  3. The OpenAI credential ("OpenAI account 22") had an invalid API key — worked around by switching the AI model node to **Ollama** instead.
+  - After all 3 fixes, a real text file was sent end-to-end and correctly produced: AI-extracted fields (document type, sender, summary, requested action, deadline, urgency, department), a Google Drive upload, a Sheets row, and an urgency-based Gmail notification. Confirmed working Sep 12.
+- **Lesson for Workflow C / any future node:** anything reading the raw webhook request body needs `$json.body.*`; anything reading the uploaded file's type/name after it's been converted to binary needs `$binary.data.mimeType` / `$binary.data.fileName`, not `$json`.
 - **Success response:** `200 OK`, JSON object describing the newly processed document, same shape as one item above (a new row):
 
 ```json
@@ -82,11 +94,11 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 ## 3. Workflow C — Mark Reviewed
 
 - **Method / Path:** `POST /review`
-- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-review` *(to be confirmed once imported)*
-- **Request body:**
+- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-review` ✅ *(confirmed active — tested Sep 12)*
+- **Request body:** ⚠️ **corrected field name** — confirmed by testing the live webhook, the workflow checks for a field called **`document_id`** (lowercase, underscore), NOT `"Document ID"` like the sheet column:
 
 ```json
-{ "Document ID": "<id of the row to update>", "Reviewed By": "yamit", "Review Note": "Looks good, approved." }
+{ "document_id": "<id of the row to update>", "Reviewed By": "yamit", "Review Note": "Looks good, approved." }
 ```
 
 - **Success response:** `200 OK`:
@@ -95,9 +107,9 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 { "Document ID": "<id>", "Status": "Processed", "Reviewed By": "yamit" }
 ```
 
-- **Error response:** `404` if the row/id is not found; `401` if API key missing/wrong.
+- **Error response:** `404` with `{ "status": "error", "error_code": "NOT_FOUND", "message": "No document_id in request body" }` if `document_id` is missing or the row/id is not found; `401` if API key missing/wrong.
 
-- **Note:** the sheet currently has a `Document ID` column that appears empty in existing rows. Before building Workflow C, confirm how a row will actually be identified/matched (by row number, by `File Name`, or by populating `Document ID` going forward) — this affects what the request body above must contain.
+- **Note:** the sheet currently has a `Document ID` column that appears empty in existing rows. Before building Workflow C's real integration (M6), confirm how a row will actually be identified/matched (by row number, by `File Name`, or by populating `Document ID` going forward) — this affects what value the frontend sends as `document_id`.
 
 ---
 

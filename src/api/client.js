@@ -51,10 +51,10 @@ export async function getDocuments() {
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 403) {
       throw new Error("Unauthorized — check VITE_API_KEY in .env.");
     }
-    throw new Error(`Failed to load documents (status ${response.status}).`);
+    throw new Error(await readErrorMessage(response, "לטעון את המסמכים"));
   }
 
   return response.json();
@@ -86,7 +86,7 @@ export async function processDocument(file) {
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 403) {
       throw new Error("Unauthorized — check VITE_API_KEY in .env.");
     }
     throw new Error(await readErrorMessage(response, "לעבד את המסמך"));
@@ -119,7 +119,7 @@ export async function reviewDocument(rowNumber, reviewedBy, reviewNote) {
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 403) {
       throw new Error("Unauthorized — check VITE_API_KEY in .env.");
     }
     throw new Error(await readErrorMessage(response, "לסמן את המסמך כנבדק"));

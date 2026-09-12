@@ -6,7 +6,7 @@ This document defines the HTTP "contract" (interface) between the frontend and t
 x-api-key: <secret value, stored in .env, never committed to git>
 ```
 
-If the header is missing or wrong, n8n returns `401 Unauthorized`.
+If the header is missing or wrong, n8n's Header Auth returns **`403 Forbidden`** with the plain-text body `Authorization data is wrong!` — confirmed by testing the real webhook Sep 12 (not `401`, as earlier drafts of this doc assumed; n8n's built-in Header Auth credential always responds with 403, not 401).
 
 > Field names below are taken directly from the real Google Sheet ("Document Processing Log") columns, since Workflow B has no renaming step — the Google Sheets node's output keys are exactly the sheet's column headers, including spaces.
 
@@ -41,7 +41,7 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 ]
 ```
 
-- **Error response:** `401` if API key missing/wrong; `500` if Google Sheets read fails.
+- **Error response:** `403` if API key missing/wrong (see note above); `500` if Google Sheets read fails.
 
 - **Note for the React side:** because the field names contain spaces (`"File Name"`, not `fileName`), the frontend must access them with bracket notation, e.g. `doc["File Name"]`, not `doc.File Name`. Consider mapping these to clean camelCase names in one place (e.g. `src/api/client.js`) right after fetching, so the rest of the React components can use nice names like `doc.fileName` — this keeps the "ugly" sheet-column names isolated to a single mapping function.
 
@@ -86,7 +86,7 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 }
 ```
 
-- **Error response:** `400` if no file sent; `401` if API key missing/wrong; `500` if AI/Sheets step fails.
+- **Error response:** `400` if no file sent; `403` if API key missing/wrong (see note above); `500` if AI/Sheets step fails.
 - **Important:** both branches of the "Is it urgent?" IF node in this workflow must lead to a `Respond to Webhook` node, otherwise one branch will time out with no response (see assignment pitfalls).
 
 ---
@@ -118,7 +118,7 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 
   (Note: this differs from the shape originally sketched in this doc — the real Respond-to-Webhook node returns this simpler object, not `{"Document ID", "Status", "Reviewed By"}`. Documented here to match reality.)
 
-- **Error response:** `404` with `{ "status": "error", "error_code": "NOT_FOUND", "message": "No document_id in request body" }` if `document_id` is missing; `401` if API key missing/wrong.
+- **Error response:** `404` with `{ "status": "error", "error_code": "NOT_FOUND", "message": "No document_id in request body" }` if `document_id` is missing; `403` if API key missing/wrong (see note above).
 
 ---
 

@@ -15,7 +15,14 @@ export default function Upload() {
 
   function handleFiles(fileList) {
     if (fileList && fileList.length > 0) {
-      setFile(fileList[0])
+      const selected = fileList[0]
+      if (selected.type !== 'application/pdf' && selected.type !== 'text/plain') {
+        setFile(null)
+        setResult(null)
+        setError('סוג הקובץ אינו נתמך. ניתן להעלות קובצי PDF או טקסט (.txt) בלבד.')
+        return
+      }
+      setFile(selected)
       setResult(null)
       setError(null)
     }
@@ -59,6 +66,7 @@ export default function Upload() {
         <input
           ref={inputRef}
           type="file"
+          accept="application/pdf,text/plain"
           hidden
           onChange={(e) => handleFiles(e.target.files)}
         />
@@ -67,7 +75,7 @@ export default function Upload() {
         ) : (
           <>
             <p>גררו קובץ לכאן, או לחצו לבחירה</p>
-            <p className="drop-hint">PDF, DOCX, XLSX...</p>
+            <p className="drop-hint">PDF, TXT</p>
           </>
         )}
       </div>

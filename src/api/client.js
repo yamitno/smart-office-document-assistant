@@ -14,12 +14,27 @@ function fileToBase64(file) {
   });
 }
 
-async function readErrorMessage(response) {
+async function readErrorMessage(response, context) {
   try {
     const body = await response.json();
     return body.message || body.error || JSON.stringify(body);
   } catch {
-    return `Failed to process document (status ${response.status}).`;
+    return `לא ניתן היה ${context} (קוד שגיאה ${response.status}).`;
+  }
+}
+
+async function fetchWithTimeout(url, options, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("הבקשה ארכה זמן רב מדי. ודאי שהשרת (n8n) פעיל ונסי שוב.");
+    }
+    throw new Error("לא ניתן להתחבר לשרת. בדקי את החיבור לאינטרנט, ודאי שה-n8n פעיל, ונסי שוב.");
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -31,7 +46,7 @@ export async function getDocuments() {
     return getMockDocuments();
   }
 
-  const response = await fetch(`${API_BASE_URL}/yamit-documents`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/yamit-documents`, {
     headers: { "x-api-key": API_KEY },
   });
 
@@ -57,7 +72,7 @@ export async function processDocument(file) {
 
   const file_base64 = await fileToBase64(file);
 
-  const response = await fetch(`${API_BASE_URL}/yamit-process-document`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/yamit-process-document`, {
     method: "POST",
     headers: {
       "x-api-key": API_KEY,
@@ -74,7 +89,7 @@ export async function processDocument(file) {
     if (response.status === 401) {
       throw new Error("Unauthorized — check VITE_API_KEY in .env.");
     }
-    throw new Error(await readErrorMessage(response));
+    throw new Error(await readErrorMessage(response, "לעבד את המסמך"));
   }
 
   return response.json();
@@ -90,7 +105,7 @@ export async function reviewDocument(rowNumber, reviewedBy, reviewNote) {
     );
   }
 
-  const response = await fetch(`${API_BASE_URL}/yamit-review`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/yamit-review`, {
     method: "POST",
     headers: {
       "x-api-key": API_KEY,
@@ -107,7 +122,7 @@ export async function reviewDocument(rowNumber, reviewedBy, reviewNote) {
     if (response.status === 401) {
       throw new Error("Unauthorized — check VITE_API_KEY in .env.");
     }
-    throw new Error(await readErrorMessage(response));
+    throw new Error(await readErrorMessage(response, "לסמן את המסמך כנבדק"));
   }
 
   return response.json();

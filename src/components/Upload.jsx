@@ -18,6 +18,9 @@ function isAcceptedFile(file) {
   return file.name.toLowerCase().endsWith('.docx')
 }
 
+const MAX_FILE_MB = Number(import.meta.env.VITE_MAX_FILE_MB) || 10
+const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024
+
 export default function Upload() {
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -33,6 +36,12 @@ export default function Upload() {
         setFile(null)
         setResult(null)
         setError('סוג הקובץ אינו נתמך. ניתן להעלות קובצי PDF, Word (.docx) או טקסט (.txt) בלבד.')
+        return
+      }
+      if (selected.size > MAX_FILE_BYTES) {
+        setFile(null)
+        setResult(null)
+        setError(`הקובץ גדול מדי. הגודל המקסימלי המותר הוא ${MAX_FILE_MB}MB.`)
         return
       }
       setFile(selected)

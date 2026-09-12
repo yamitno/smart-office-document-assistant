@@ -22,7 +22,7 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Update `client.js`: `getDocuments()` → real `fetch(`${VITE_API_BASE_URL}/yamit-documents`)` with the `x-api-key` header
 - [x] Handle `401` / `500` gracefully (a clear message on screen, not a raw JSON dump)
 - [x] Add the "Refresh" button on the Dashboard (SPEC 2.1) to re-call `GET /documents`
-- [ ] Verify CORS allows `http://localhost:5173` during dev (pending manual check against a real `.env`)
+- [x] Verify CORS allows `http://localhost:5173` during dev
 - [x] Keep `mock.js` in place as a fallback / for offline dev (auto-fallback when `.env` is missing)
 
 ## Milestone 3 — Workflow A (`POST /process-document`)

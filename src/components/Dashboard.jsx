@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getDocuments } from '../api/client.js'
+import {
+  translateUrgency,
+  translateStatus,
+  translateDocumentType,
+  translateDepartment,
+} from '../utils/labels.js'
 import './Dashboard.css'
 
 const URGENCY_CLASS = {
@@ -11,14 +17,14 @@ const URGENCY_CLASS = {
 
 function UrgencyBadge({ value }) {
   const className = URGENCY_CLASS[value] || 'badge-neutral'
-  return <span className={`badge ${className}`}>{value || 'לא ידוע'}</span>
+  return <span className={`badge ${className}`}>{translateUrgency(value) || 'לא ידוע'}</span>
 }
 
 function StatusBadge({ value }) {
   const isProcessed = value === 'Processed'
   return (
     <span className={`badge ${isProcessed ? 'badge-processed' : 'badge-review'}`}>
-      {value}
+      {translateStatus(value)}
     </span>
   )
 }
@@ -62,7 +68,7 @@ export default function Dashboard() {
           <option value="all">כל הסטטוסים</option>
           {statuses.map((status) => (
             <option key={status} value={status}>
-              {status}
+              {translateStatus(status)}
             </option>
           ))}
         </select>
@@ -87,14 +93,14 @@ export default function Dashboard() {
                 onClick={() => navigate(`/document/${index}`)}
               >
                 <td>{doc['File Name']}</td>
-                <td>{doc['Document Type']}</td>
+                <td>{translateDocumentType(doc['Document Type'])}</td>
                 <td>
                   <UrgencyBadge value={doc['Urgency']} />
                 </td>
                 <td>
                   <StatusBadge value={doc['Status']} />
                 </td>
-                <td>{doc['Department']}</td>
+                <td>{translateDepartment(doc['Department'])}</td>
               </tr>
             ))}
             {filtered.length === 0 && (

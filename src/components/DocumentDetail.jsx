@@ -1,21 +1,27 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getDocuments } from '../api/client.js'
+import {
+  translateUrgency,
+  translateStatus,
+  translateDocumentType,
+  translateDepartment,
+} from '../utils/labels.js'
 import './DocumentDetail.css'
 
 const FIELDS = [
-  ['File Name', 'שם קובץ'],
-  ['Document Type', 'סוג מסמך'],
-  ['Sender / Company', 'שולח / חברה'],
-  ['Received At', 'התקבל בתאריך'],
-  ['Deadline', 'מועד אחרון'],
-  ['Urgency', 'דחיפות'],
-  ['Department', 'מחלקה'],
-  ['Status', 'סטטוס'],
-  ['Requested Action', 'פעולה נדרשת'],
-  ['Summary', 'תקציר'],
-  ['Reviewed By', 'נבדק על ידי'],
-  ['Review Note', 'הערת ביקורת'],
+  ['File Name', 'שם קובץ', null],
+  ['Document Type', 'סוג מסמך', translateDocumentType],
+  ['Sender / Company', 'שולח / חברה', null],
+  ['Received At', 'התקבל בתאריך', null],
+  ['Deadline', 'מועד אחרון', null],
+  ['Urgency', 'דחיפות', translateUrgency],
+  ['Department', 'מחלקה', translateDepartment],
+  ['Status', 'סטטוס', translateStatus],
+  ['Requested Action', 'פעולה נדרשת', null],
+  ['Summary', 'תקציר', null],
+  ['Reviewed By', 'נבדק על ידי', null],
+  ['Review Note', 'הערת ביקורת', null],
 ]
 
 export default function DocumentDetail() {
@@ -53,10 +59,10 @@ export default function DocumentDetail() {
       )}
 
       <dl className="detail-fields">
-        {FIELDS.map(([key, label]) => (
+        {FIELDS.map(([key, label, translate]) => (
           <div className="detail-row" key={key}>
             <dt>{label}</dt>
-            <dd>{doc[key] || '—'}</dd>
+            <dd>{(translate ? translate(doc[key]) : doc[key]) || '—'}</dd>
           </div>
         ))}
       </dl>

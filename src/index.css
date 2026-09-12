@@ -1,8 +1,8 @@
 :root {
   --text: #374151;
   --text-h: #0f172a;
-  --bg: #eff6ff;
-  --bg-gradient: linear-gradient(180deg, #eff6ff 0%, #f8fafc 320px);
+  --bg: #dbeafe;
+  --bg-gradient: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
   --surface: #ffffff;
   --border: #e2e8f0;
 
@@ -35,10 +35,16 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+  background: var(--bg-gradient);
+}
+
 body {
   margin: 0;
-  background: var(--bg-gradient);
   min-height: 100svh;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
 }
 
 h1, h2, h3 {

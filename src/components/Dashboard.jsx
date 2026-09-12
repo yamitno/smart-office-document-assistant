@@ -9,6 +9,19 @@ import {
 } from '../utils/labels.js'
 import './Dashboard.css'
 
+function formatDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleDateString('he-IL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 function StatusBadge({ value }) {
   const isProcessed = value === 'Processed'
   return (
@@ -75,6 +88,7 @@ export default function Dashboard() {
           <thead>
             <tr>
               <th>שם קובץ</th>
+              <th>התקבל בתאריך</th>
               <th>סוג מסמך</th>
               <th>דחיפות</th>
               <th>סטטוס</th>
@@ -89,6 +103,7 @@ export default function Dashboard() {
                 onClick={() => navigate(`/document/${doc.row_number}`)}
               >
                 <td>{doc['File Name']}</td>
+                <td>{formatDate(doc['Received At'])}</td>
                 <td>{translateDocumentType(doc['Document Type'])}</td>
                 <td>
                   <UrgencyBadge value={doc['Urgency']} />
@@ -101,7 +116,7 @@ export default function Dashboard() {
             ))}
             {!loading && filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-row">
+                <td colSpan={6} className="empty-row">
                   לא נמצאו מסמכים תואמים.
                 </td>
               </tr>

@@ -1,0 +1,112 @@
+import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getDocuments } from '../api/client.js'
+import './Dashboard.css'
+
+const URGENCY_CLASS = {
+  High: 'badge-high',
+  Medium: 'badge-medium',
+  Low: 'badge-low',
+}
+
+function UrgencyBadge({ value }) {
+  const className = URGENCY_CLASS[value] || 'badge-neutral'
+  return <span className={`badge ${className}`}>{value || 'לא ידוע'}</span>
+}
+
+function StatusBadge({ value }) {
+  const isProcessed = value === 'Processed'
+  return (
+    <span className={`badge ${isProcessed ? 'badge-processed' : 'badge-review'}`}>
+      {value}
+    </span>
+  )
+}
+
+export default function Dashboard() {
+  const documents = useMemo(() => getDocuments(), [])
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const navigate = useNavigate()
+
+  const statuses = useMemo(
+    () => Array.from(new Set(documents.map((doc) => doc['Status']))),
+    [documents],
+  )
+
+  const filtered = documents.filter((doc) => {
+    const matchesSearch = doc['File Name']
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || doc['Status'] === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  return (
+    <div className="dashboard">
+      <h1>לוח בקרה - מסמכים</h1>
+
+      <div className="dashboard-controls">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="חיפוש לפי שם קובץ..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="status-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">כל הסטטוסים</option>
+          {statuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="table-wrapper">
+        <table className="doc-table">
+          <thead>
+            <tr>
+              <th>שם קובץ</th>
+              <th>סוג מסמך</th>
+              <th>דחיפות</th>
+              <th>סטטוס</th>
+              <th>מחלקה</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((doc, index) => (
+              <tr
+                key={index}
+                className="doc-row"
+                onClick={() => navigate(`/document/${index}`)}
+              >
+                <td>{doc['File Name']}</td>
+                <td>{doc['Document Type']}</td>
+                <td>
+                  <UrgencyBadge value={doc['Urgency']} />
+                </td>
+                <td>
+                  <StatusBadge value={doc['Status']} />
+                </td>
+                <td>{doc['Department']}</td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty-row">
+                  לא נמצאו מסמכים תואמים.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

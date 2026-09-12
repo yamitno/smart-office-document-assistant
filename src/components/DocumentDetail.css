@@ -71,6 +71,32 @@
 
 .review-action {
   margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.review-input {
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.review-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.review-note {
+  min-height: 70px;
+  resize: vertical;
 }
 
 .review-button {
@@ -82,4 +108,27 @@
   font-weight: 600;
   font-size: 0.95rem;
   cursor: not-allowed;
+}
+
+.review-button:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.review-button:not(:disabled):hover {
+  background: var(--accent-hover);
+}
+
+.review-done {
+  background: var(--accent-bg);
+  color: var(--text-h);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.review-done p {
+  margin: 0.2rem 0;
 }

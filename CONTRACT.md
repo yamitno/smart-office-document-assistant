@@ -94,22 +94,31 @@ If the header is missing or wrong, n8n returns `401 Unauthorized`.
 ## 3. Workflow C — Mark Reviewed
 
 - **Method / Path:** `POST /review`
-- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-review` ✅ *(confirmed active — tested Sep 12)*
-- **Request body:** ⚠️ **corrected field name** — confirmed by testing the live webhook, the workflow checks for a field called **`document_id`** (lowercase, underscore), NOT `"Document ID"` like the sheet column:
+- **Production URL:** `https://alexkuznetsov.app.n8n.cloud/webhook/yamit-review` ✅ *(confirmed fully working end-to-end — tested Sep 12)*
+- **Request body:**
 
 ```json
-{ "document_id": "<id of the row to update>", "Reviewed By": "yamit", "Review Note": "Looks good, approved." }
+{ "document_id": 23, "Reviewed By": "yamit", "Review Note": "Looks good, approved." }
 ```
+
+  ⚠️ **`document_id` is the row's `row_number`** (a number), returned by Workflow B (`GET /documents`) as the `row_number` field on every document — NOT the sheet's `Document ID` column. n8n's Google Sheets node adds `row_number` automatically to every row it reads, so it's always present and always unique, unlike `Document ID` which is empty on most existing rows. The frontend must read `row_number` from the document object it already has (from the dashboard/detail view) and send it back as `document_id` when marking reviewed.
+
+- **Workflow bugs found + fixed (Sep 12), same pattern as Workflow A:**
+  1. Body-nesting: the IF node ("Has document_id") and the Google Sheets "Update Row" node were reading `$json.document_id` / `$json.reviewed_by` / `$json.review_note` — all missing the `body.` prefix required for webhook data. Fixed to `$json.body.document_id`, `$json.body['Reviewed By']`, `$json.body['Review Note']`.
+  2. The Google Sheets "Update Row" node's matching column was set to `Document ID` (empty on almost all rows) — switched to `row_number`, which is always present.
+  3. The IF node's "is not empty" condition was strict-typed as text; since `document_id` arrives as a JSON number, this threw a type error (`'23' is a number but expected a string`) once a real value was sent (it only "worked" before because the tested case was a genuinely missing field, which happens to look the same for both a real bug and a real 404). Fixed by enabling "Convert types when needed" on the IF node.
+  - After all 3 fixes, tested via a real fetch: marking row 23 as reviewed set `Reviewed By` / `Review Note` correctly in the sheet, and the missing-`document_id` case still correctly returns 404.
+  - **Side effect to know about:** the Update Row node also writes `document_id`'s value into the sheet's `Document ID` column (since that field was already mapped there before the fix). This means marking a document reviewed will overwrite any existing `Document ID` value (e.g. an `exec-...` id from Workflow A) with the plain row number. Harmless functionally since matching no longer depends on that column, but worth knowing if `Document ID` is used for anything else later.
 
 - **Success response:** `200 OK`:
 
 ```json
-{ "Document ID": "<id>", "Status": "Processed", "Reviewed By": "yamit" }
+{ "status": "updated", "document_id": 23 }
 ```
 
-- **Error response:** `404` with `{ "status": "error", "error_code": "NOT_FOUND", "message": "No document_id in request body" }` if `document_id` is missing or the row/id is not found; `401` if API key missing/wrong.
+  (Note: this differs from the shape originally sketched in this doc — the real Respond-to-Webhook node returns this simpler object, not `{"Document ID", "Status", "Reviewed By"}`. Documented here to match reality.)
 
-- **Note:** the sheet currently has a `Document ID` column that appears empty in existing rows. Before building Workflow C's real integration (M6), confirm how a row will actually be identified/matched (by row number, by `File Name`, or by populating `Document ID` going forward) — this affects what value the frontend sends as `document_id`.
+- **Error response:** `404` with `{ "status": "error", "error_code": "NOT_FOUND", "message": "No document_id in request body" }` if `document_id` is missing; `401` if API key missing/wrong.
 
 ---
 

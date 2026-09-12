@@ -82,11 +82,11 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((doc, index) => (
+            {filtered.map((doc) => (
               <tr
-                key={index}
+                key={doc.row_number}
                 className="doc-row"
-                onClick={() => navigate(`/document/${index}`)}
+                onClick={() => navigate(`/document/${doc.row_number}`)}
               >
                 <td>{doc['File Name']}</td>
                 <td>{translateDocumentType(doc['Document Type'])}</td>

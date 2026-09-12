@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useDocuments } from '../hooks/useDocuments.js'
+import { reviewDocument } from '../api/client.js'
 import {
   translateUrgency,
   translateStatus,
@@ -26,8 +28,27 @@ const FIELDS = [
 export default function DocumentDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { documents, loading, error } = useDocuments()
-  const doc = documents[Number(id)]
+  const { documents, loading, error, refresh } = useDocuments()
+  const doc = documents.find((d) => d.row_number === Number(id))
+
+  const [reviewedBy, setReviewedBy] = useState('')
+  const [reviewNote, setReviewNote] = useState('')
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false)
+  const [reviewError, setReviewError] = useState(null)
+
+  async function handleMarkReviewed() {
+    if (!reviewedBy.trim()) return
+    setIsSubmittingReview(true)
+    setReviewError(null)
+    try {
+      await reviewDocument(doc.row_number, reviewedBy.trim(), reviewNote.trim())
+      refresh()
+    } catch (err) {
+      setReviewError(err.message || 'אירעה שגיאה בסימון המסמך כנבדק.')
+    } finally {
+      setIsSubmittingReview(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -83,11 +104,36 @@ export default function DocumentDetail() {
         ))}
       </dl>
 
-      <div className="review-action">
-        <button className="review-button" disabled title="Will connect to Workflow C later.">
-          סמן כנבדק
-        </button>
-      </div>
+      {doc['Reviewed By'] ? (
+        <div className="review-done">
+          <p>נבדק על ידי: {doc['Reviewed By']}</p>
+          {doc['Review Note'] && <p>הערה: {doc['Review Note']}</p>}
+        </div>
+      ) : (
+        <div className="review-action">
+          {reviewError && <p className="error-banner">{reviewError}</p>}
+          <input
+            type="text"
+            className="review-input"
+            placeholder="נבדק על ידי"
+            value={reviewedBy}
+            onChange={(e) => setReviewedBy(e.target.value)}
+          />
+          <textarea
+            className="review-input review-note"
+            placeholder="הערת ביקורת (אופציונלי)"
+            value={reviewNote}
+            onChange={(e) => setReviewNote(e.target.value)}
+          />
+          <button
+            className="review-button"
+            onClick={handleMarkReviewed}
+            disabled={!reviewedBy.trim() || isSubmittingReview}
+          >
+            {isSubmittingReview ? 'שולח...' : 'סמן כנבדק'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

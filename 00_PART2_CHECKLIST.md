@@ -34,11 +34,11 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Link back to the Dashboard after a successful upload
 
 ## Milestone 4 — Workflow C (`POST /review`)
-- [ ] Confirm the production URL, and how a row is identified (`Document ID` vs `File Name` — see the open question in CONTRACT.md)
-- [ ] `client.js`: add `markReviewed(id, reviewedBy, note)` → `POST /review`
-- [ ] `DocumentDetail.jsx`: enable the "Mark as Reviewed" button, wire it up
-- [ ] Update the Dashboard/detail status in place on success (no full page reload — SPEC 2.3)
-- [ ] Handle `404` (row not found) and `401`
+- [x] Confirm the production URL and row identification — `document_id` is actually the sheet's `row_number`, not the (mostly empty) `Document ID` column (see CONTRACT.md, confirmed Sep 12)
+- [x] `client.js`: add `reviewDocument(rowNumber, reviewedBy, reviewNote)` → `POST /yamit-review`
+- [x] `DocumentDetail.jsx`: enable the "Mark as Reviewed" form (reviewedBy + optional note), wire it up; also fixed Dashboard/DocumentDetail to route/look up by `row_number` instead of array index (index broke under an active search/filter)
+- [x] Update the Dashboard/detail status in place on success via `refresh()` (no full page reload — SPEC 2.3) — verified live against the real API (row 3 moved from "ממתין לבדיקה" to "טופל" without a reload)
+- [x] Handle `401`; readable error message on any other failure via the shared `error-banner` style
 
 ## Milestone 5 — Polish & submission
 - [ ] Loading and error states consistent across all three screens

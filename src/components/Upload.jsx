@@ -89,32 +89,32 @@ export default function Upload() {
           <h2>המסמך עובד בהצלחה</h2>
           <div className="result-row">
             <span className="result-label">סוג מסמך</span>
-            <span>{translateDocumentType(result['Document Type'])}</span>
+            <span>{translateDocumentType(result.fields?.document_type)}</span>
           </div>
           <div className="result-row">
             <span className="result-label">שולח / חברה</span>
-            <span>{result['Sender / Company']}</span>
+            <span>{result.fields?.sender_or_company}</span>
           </div>
           <div className="result-row">
             <span className="result-label">תקציר</span>
-            <span>{result['Summary']}</span>
+            <span>{result.fields?.summary}</span>
           </div>
           <div className="result-row">
             <span className="result-label">דחיפות</span>
-            <UrgencyBadge value={result['Urgency']} />
+            <UrgencyBadge value={result.fields?.urgency} />
           </div>
           <div className="result-row">
             <span className="result-label">מועד אחרון</span>
-            <span>{result['Deadline']}</span>
+            <span>{result.fields?.deadline}</span>
           </div>
           <div className="result-row">
             <span className="result-label">מחלקה</span>
-            <span>{translateDepartment(result['Department'])}</span>
+            <span>{translateDepartment(result.fields?.department)}</span>
           </div>
-          {result['File Link'] && (
+          {result.file_link && (
             <a
               className="file-link"
-              href={result['File Link']}
+              href={result.file_link}
               target="_blank"
               rel="noreferrer"
             >

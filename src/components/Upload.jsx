@@ -5,6 +5,19 @@ import UrgencyBadge from './UrgencyBadge.jsx'
 import { translateDocumentType, translateDepartment } from '../utils/labels.js'
 import './Upload.css'
 
+const ACCEPTED_MIME_TYPES = [
+  'application/pdf',
+  'text/plain',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+
+function isAcceptedFile(file) {
+  if (ACCEPTED_MIME_TYPES.includes(file.type)) return true
+  // Some browsers/OS report .docx as application/octet-stream (or blank) —
+  // fall back to the extension for that one case.
+  return file.name.toLowerCase().endsWith('.docx')
+}
+
 export default function Upload() {
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -16,10 +29,10 @@ export default function Upload() {
   function handleFiles(fileList) {
     if (fileList && fileList.length > 0) {
       const selected = fileList[0]
-      if (selected.type !== 'application/pdf' && selected.type !== 'text/plain') {
+      if (!isAcceptedFile(selected)) {
         setFile(null)
         setResult(null)
-        setError('סוג הקובץ אינו נתמך. ניתן להעלות קובצי PDF או טקסט (.txt) בלבד.')
+        setError('סוג הקובץ אינו נתמך. ניתן להעלות קובצי PDF, Word (.docx) או טקסט (.txt) בלבד.')
         return
       }
       setFile(selected)
@@ -66,7 +79,7 @@ export default function Upload() {
         <input
           ref={inputRef}
           type="file"
-          accept="application/pdf,text/plain"
+          accept="application/pdf,text/plain,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           hidden
           onChange={(e) => handleFiles(e.target.files)}
         />
@@ -75,7 +88,7 @@ export default function Upload() {
         ) : (
           <>
             <p>גררו קובץ לכאן, או לחצו לבחירה</p>
-            <p className="drop-hint">PDF, TXT</p>
+            <p className="drop-hint">PDF, Word (.docx), TXT</p>
           </>
         )}
       </div>

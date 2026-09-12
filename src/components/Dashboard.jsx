@@ -9,6 +9,8 @@ import {
 } from '../utils/labels.js'
 import './Dashboard.css'
 
+const URGENCY_RANK = { High: 3, Medium: 2, Low: 1 }
+
 function formatDate(value) {
   if (!value) return '—'
   const date = new Date(value)
@@ -31,10 +33,24 @@ function StatusBadge({ value }) {
   )
 }
 
+function SortableHeader({ label, column, sortColumn, sortDirection, onSort }) {
+  const isActive = sortColumn === column
+  return (
+    <th className="sortable-th" onClick={() => onSort(column)}>
+      {label}
+      {isActive && (
+        <span className="sort-arrow">{sortDirection === 'asc' ? ' ▲' : ' ▼'}</span>
+      )}
+    </th>
+  )
+}
+
 export default function Dashboard() {
   const { documents, loading, error, refresh } = useDocuments()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [sortColumn, setSortColumn] = useState(null)
+  const [sortDirection, setSortDirection] = useState('asc')
   const navigate = useNavigate()
 
   const statuses = useMemo(
@@ -49,6 +65,49 @@ export default function Dashboard() {
     const matchesStatus = statusFilter === 'all' || doc['Status'] === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const sorted = useMemo(() => {
+    if (!sortColumn) return filtered
+    const dir = sortDirection === 'asc' ? 1 : -1
+
+    const labelOf = {
+      'File Name': (doc) => doc['File Name'] || '',
+      'Document Type': (doc) => translateDocumentType(doc['Document Type']) || 'לא ידוע',
+      Status: (doc) => translateStatus(doc['Status']) || '',
+      Department: (doc) => translateDepartment(doc['Department']) || '',
+    }
+
+    return [...filtered].sort((a, b) => {
+      if (sortColumn === 'Received At') {
+        const da = new Date(a['Received At'])
+        const db = new Date(b['Received At'])
+        const va = Number.isNaN(da.getTime()) ? null : da.getTime()
+        const vb = Number.isNaN(db.getTime()) ? null : db.getTime()
+        if (va === null && vb === null) return 0
+        if (va === null) return 1
+        if (vb === null) return -1
+        return (va - vb) * dir
+      }
+
+      if (sortColumn === 'Urgency') {
+        const ra = URGENCY_RANK[a['Urgency']] || 0
+        const rb = URGENCY_RANK[b['Urgency']] || 0
+        return (ra - rb) * dir
+      }
+
+      const getLabel = labelOf[sortColumn]
+      return getLabel(a).localeCompare(getLabel(b), 'he') * dir
+    })
+  }, [filtered, sortColumn, sortDirection])
+
+  function handleSort(column) {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
 
   return (
     <div className="dashboard">
@@ -87,16 +146,16 @@ export default function Dashboard() {
         <table className="doc-table">
           <thead>
             <tr>
-              <th>שם קובץ</th>
-              <th>התקבל בתאריך</th>
-              <th>סוג מסמך</th>
-              <th>דחיפות</th>
-              <th>סטטוס</th>
-              <th>מחלקה</th>
+              <SortableHeader label="שם קובץ" column="File Name" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="התקבל בתאריך" column="Received At" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="סוג מסמך" column="Document Type" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="דחיפות" column="Urgency" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="סטטוס" column="Status" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="מחלקה" column="Department" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
             </tr>
           </thead>
           <tbody>
-            {filtered.map((doc) => (
+            {sorted.map((doc) => (
               <tr
                 key={doc.row_number}
                 className="doc-row"
@@ -104,7 +163,7 @@ export default function Dashboard() {
               >
                 <td>{doc['File Name']}</td>
                 <td>{formatDate(doc['Received At'])}</td>
-                <td>{translateDocumentType(doc['Document Type'])}</td>
+                <td>{translateDocumentType(doc['Document Type']) || 'לא ידוע'}</td>
                 <td>
                   <UrgencyBadge value={doc['Urgency']} />
                 </td>
@@ -114,7 +173,7 @@ export default function Dashboard() {
                 <td>{translateDepartment(doc['Department'])}</td>
               </tr>
             ))}
-            {!loading && filtered.length === 0 && (
+            {!loading && sorted.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty-row">
                   לא נמצאו מסמכים תואמים.

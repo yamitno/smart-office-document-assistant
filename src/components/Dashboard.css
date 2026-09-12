@@ -98,6 +98,20 @@
   border-bottom: 1px solid var(--border);
 }
 
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  color: var(--accent);
+}
+
+.sort-arrow {
+  color: var(--accent);
+  margin-inline-start: 0.25rem;
+}
+
 .doc-row {
   cursor: pointer;
   border-bottom: 1px solid var(--border);

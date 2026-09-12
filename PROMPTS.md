@@ -103,3 +103,30 @@ Prompts that mattered during the build of Part 2, with what came back and what h
 **What came back:** `.env.example` created with both variables listed (placeholder values, not real secrets), matching what `src/api/client.js` actually reads via `import.meta.env`. Committed as `704f074`.
 
 **What had to be corrected:** Nothing.
+
+---
+
+## 9. DOCX support (Workflow A + Upload.jsx + file size limit)
+
+**Step 1 (n8n, done directly in the browser, not via Claude Code):**
+Added a "DOCX" branch to the "Route by File Type" Switch node, a custom Code node, and a "Normalize (DOCX)" node to Workflow A, to extract text from `.docx` files (a `.docx` is a ZIP archive containing `word/document.xml`).
+
+**What came back / had to be fixed (n8n side):**
+- n8n's Code node sandbox disallows `require('zlib')` ("Module 'zlib' is disallowed").
+- The `DecompressionStream` Web API is not available either ("DecompressionStream is not defined").
+- Final fix: wrote a complete pure-JavaScript RFC 1951 (raw DEFLATE) decoder with zero dependencies, verified locally in Node.js against a real `.docx` before deploying it to n8n.
+- Also found and fixed two "Fixed vs Expression" mode bugs on fields that had been set through automated browser interaction — they displayed `{{ }}` syntax but were actually evaluated as literal strings, silently breaking the routing rule and the Normalize node until explicitly re-toggled.
+
+**Prompt 2 (Claude Code, full text preserved from this session):**
+> In `src/components/Upload.jsx`, the client-side file-type validation currently only accepts PDF and plain text files. Update it to also accept Microsoft Word `.docx` files, matching what the backend (n8n Workflow A) now supports... [do not add image/scan support — must remain rejected]... Also update CONTRACT.md's supported `mime_type` list.
+
+**What came back:** Worked on the first attempt — added an `ACCEPTED_MIME_TYPES` list and an `isAcceptedFile()` helper (MIME type + `.docx` extension fallback for browsers that report it as `application/octet-stream`), updated the rejection message and the drop-zone hint text, updated CONTRACT.md. Verified end-to-end with a real `.docx` uploaded through the app: correct row in Google Sheets + Gmail notification received. Committed as `1c878cc`.
+
+**What had to be corrected:** Nothing.
+
+**Prompt 3 (Claude Code, full text preserved from this session):**
+> Yes, please add a client-side file size limit to Upload.jsx, matching requirements F1 and F8: add `VITE_MAX_FILE_MB` to `.env`/`.env.example` (default 10)...
+
+**What came back:** Worked on the first attempt. Verified with two real PDFs generated for testing: a 4.3MB file was accepted and processed successfully; an 11.3MB file was rejected immediately in the browser with a clear message, before any request reached n8n. Committed as `13fe5f7`, test fixtures added in `c43c5e5`.
+
+**What had to be corrected:** Nothing.

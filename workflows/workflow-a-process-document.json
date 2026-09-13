@@ -300,8 +300,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -224,
-        528
+        -64,
+        704
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -440,8 +440,8 @@
             "Department": "={{ $json[\"Department\"] }}",
             "Status": "={{ $json[\"Status\"] }}",
             "Document ID": "={{ $json[\"Document ID\"] }}",
-            "Reviewed By": "",
-            "Review Note": ""
+            "Calendar Reminder": "={{ $json[\"Calendar Reminder\"] }}",
+            "Calendar Event Link": "={{ $json[\"Calendar Event Link\"] }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -452,7 +452,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "File Name",
@@ -461,7 +462,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "File Link",
@@ -470,7 +472,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Document Type",
@@ -479,7 +482,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Sender / Company",
@@ -488,7 +492,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Summary",
@@ -497,7 +502,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Requested Action",
@@ -506,7 +512,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Deadline",
@@ -515,7 +522,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Urgency",
@@ -524,7 +532,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Department",
@@ -533,7 +542,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Status",
@@ -542,7 +552,18 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Document ID",
@@ -551,7 +572,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Reviewed By",
@@ -560,7 +582,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Review Note",
@@ -569,7 +592,28 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Calendar Reminder",
+              "displayName": "Calendar Reminder",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Calendar Event Link",
+              "displayName": "Calendar Event Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -582,8 +626,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        1136,
-        368
+        1360,
+        768
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -621,7 +665,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1360,
+        1584,
         368
       ]
     },
@@ -637,7 +681,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1584,
+        1808,
         256
       ],
       "webhookId": "c523e7cc-2630-49e0-abe2-3df81cdad54a",
@@ -660,7 +704,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1584,
+        1808,
         496
       ],
       "webhookId": "e23de2d4-38ac-4025-a321-021945f54fe0",
@@ -684,7 +728,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1808,
+        2032,
         256
       ]
     },
@@ -701,7 +745,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1808,
+        2032,
         496
       ]
     },
@@ -732,8 +776,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -192,
-        400
+        -112,
+        560
       ],
       "id": "06f373d4-c952-4b74-9d2f-fb380b053ecb",
       "name": "Code in JavaScript"
@@ -760,6 +804,200 @@
       ],
       "id": "b7bf3904-5542-417c-84a7-7f029d06fd1b",
       "name": "Normalize (DOCX)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9b27092e-53be-49d2-b4a7-ffbc70511e06",
+              "leftValue": "={{ $json['Deadline'] !== 'Not found' && ['High','Medium'].includes($json['Urgency']) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        368
+      ],
+      "id": "cdd0b870-e909-4f38-970d-cb4afd529fad",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "yamityaffe@gmail.com",
+          "mode": "list",
+          "cachedResultName": "yamityaffe@gmail.com"
+        },
+        "additionalFields": {
+          "description": "'Summary: ' + $json['Summary'] + '\\nRequested action: ' + $json['Requested Action'] + '\\nDeadline: ' + $json['Deadline'] + '\\nUrgency: ' + $json['Urgency']",
+          "summary": "$json['Document Type'] + ' - ' + $json['Sender / Company']"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        624
+      ],
+      "id": "b0eefda1-3f0d-4314-991f-9e9169ec3b95",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "00jYIePSAkvRHjbh",
+          "name": "Google Calendar account 25"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3a634892-803c-45e8-9b80-6a004233abd0",
+              "name": "Document ID",
+              "value": "={{ $('Set - Build Fields & Response').item.json['Document ID'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2c92e557-4c6c-4ded-bc85-dbf53ef888f5",
+              "name": "Received At",
+              "value": "={{ $('Set - Build Fields & Response').item.json['Received At'] }}",
+              "type": "string"
+            },
+            {
+              "id": "aa197bb8-98e8-46ff-beab-e27c7eafd452",
+              "name": "File Name",
+              "value": "={{ $('Set - Build Fields & Response').item.json['File Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9129a4e8-f9cb-417d-a286-f0abd5fb6331",
+              "name": "File Link",
+              "value": "={{ $('Set - Build Fields & Response').item.json['File Link'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7a2d8b95-7bc4-4720-8f25-02f39f54163f",
+              "name": "Document Type",
+              "value": "={{ $('Set - Build Fields & Response').item.json['Document Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "04a62f18-78b6-48e4-9f47-e659d2dfafaf",
+              "name": "Sender / Company",
+              "value": "={{ $('Set - Build Fields & Response').item.json['Sender / Company'] }}",
+              "type": "string"
+            },
+            {
+              "id": "6ec8bd7c-d9af-412a-b8c3-ac5b26267ea5",
+              "name": "Summary",
+              "value": "={{ $('Set - Build Fields & Response').item.json.Summary }}",
+              "type": "string"
+            },
+            {
+              "id": "eb4a087a-d611-49ce-9f32-323225fac2d3",
+              "name": "Requested Action",
+              "value": "={{ $('Set - Build Fields & Response').item.json['Requested Action'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1d55b38e-9328-4979-af15-334e34f379c0",
+              "name": "Deadline",
+              "value": "={{ $('Set - Build Fields & Response').item.json.Deadline }}",
+              "type": "string"
+            },
+            {
+              "id": "26788294-eed8-41eb-b517-54bfd763bf7c",
+              "name": "Urgency",
+              "value": "={{ $('Set - Build Fields & Response').item.json.Urgency }}",
+              "type": "string"
+            },
+            {
+              "id": "e8ece284-8e04-4454-bec1-94046c9514e0",
+              "name": "Department",
+              "value": "={{ $('Set - Build Fields & Response').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "5b953f62-6908-451c-ab24-434ef9a2e977",
+              "name": "Status",
+              "value": "={{ $('Set - Build Fields & Response').item.json.Status }}",
+              "type": "string"
+            },
+            {
+              "id": "46b8cfbf-6648-4a96-baca-155d2344037c",
+              "name": "Calendar Reminder",
+              "value": "Yes",
+              "type": "string"
+            },
+            {
+              "id": "62af864d-4069-4a4f-828a-ce2c34c6c797",
+              "name": "Calendar Event Link",
+              "value": "={{  $json.htmlLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1632,
+        512
+      ],
+      "id": "684cf185-d6cb-4ff9-90af-6bac163e047a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e5f4927-22ae-4f4f-8d88-2fedc6a14c30",
+              "name": "Calendar Reminder",
+              "value": "No",
+              "type": "string"
+            },
+            {
+              "id": "ea42f19c-c892-4f9b-af3d-90ca0f62674f",
+              "name": "Calendar Event Link",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1504,
+        512
+      ],
+      "id": "76ff530f-a69c-43a4-8d7d-af0ae643f5f2",
+      "name": "Edit Fields1"
     }
   ],
   "pinData": {},
@@ -915,7 +1153,7 @@
       "main": [
         [
           {
-            "node": "Google Sheets - Append Row",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -1005,6 +1243,57 @@
           }
         ]
       ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Append Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Append Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1012,7 +1301,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "aa0ee835-0bc8-4871-8de7-84dcf72d61a8",
+  "versionId": "42cc31af-1e31-415b-91ae-9246e9c76ca7",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9a7e80d5d634c03304165d9eb50d45c51144a4d18b6aec140de8af0f68fc5038"

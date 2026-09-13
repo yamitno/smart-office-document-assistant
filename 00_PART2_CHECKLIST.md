@@ -41,8 +41,18 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Handle `401`; readable error message on any other failure via the shared `error-banner` style
 
 ## Milestone 5 — Polish & submission
-- [ ] Loading and error states consistent across all three screens
-- [ ] Remove leftover scaffold assets no longer used (`hero.png`, `react.svg`, `vite.svg`)
-- [ ] Update each Webhook node's CORS "Allowed Origins" to the deployed URL if the app is hosted
-- [ ] Re-check the build against SPEC.md's non-goals (no auth system, no direct Sheets/Drive/AI calls)
-- [ ] Write the reflection write-up
+- [x] Loading and error states consistent across all three screens (see F7 in README.md)
+- [x] Remove leftover scaffold assets no longer used — confirmed `src/` and `public/` are already clean, no `hero.png` / `react.svg` / `vite.svg` present
+- [ ] Update each Webhook node's CORS "Allowed Origins" to the deployed URL — **N/A unless the app is actually deployed/hosted**; still `http://localhost:5173` for local dev/demo
+- [x] Re-check the build against SPEC.md's non-goals — confirmed: the React app never calls Sheets/Drive/AI/Calendar directly (the new calendar-reminder feature runs entirely inside n8n's Workflow A), and there is still no login system, only the `x-api-key` header
+- [x] Write the reflection write-up (`Reflection.md`)
+
+## Milestone 6 — Calendar reminder feature (added Sep 13)
+- [x] Workflow A creates a real Google Calendar event when a document has a real deadline AND High/Medium urgency
+- [x] `Calendar Reminder` (Yes/No) and `Calendar Event Link` written to the sheet and returned by Workflow B
+- [x] Dashboard + Document detail show the new field (see `labels.js`, `Dashboard.jsx`, `DocumentDetail.jsx`)
+- [x] Three real n8n bugs found and fixed (wrong If-node wiring, missing `{{ }}` expression wrapper, Sheets node silently in Fixed mode) — documented in `CONTRACT.md` section 2.1
+- [x] Verified end-to-end with two real webhook calls (High-urgency+deadline → real event created; Low-urgency/no-deadline → no event)
+- [x] `CONTRACT.md` / `README.md` updated
+- [ ] **`workflows/workflow-a-process-document.json` is stale** — it still reflects the workflow *before* the calendar-reminder feature and bug fixes (last exported before today's changes). Needs a fresh export from n8n before submission (see note below).
+- [x] Dashboard column width fixed (`Dashboard.css`, `App.css`) so the new "נקבעה תזכורת ביומן" column isn't cut off

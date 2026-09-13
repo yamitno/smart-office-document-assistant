@@ -36,7 +36,9 @@ If the header is missing or wrong, n8n's Header Auth returns **`403 Forbidden`**
     "output": "",
     "Document ID": "",
     "Reviewed By": "",
-    "Review Note": ""
+    "Review Note": "",
+    "Calendar Reminder": "Yes",
+    "Calendar Event Link": "https://www.google.com/calendar/event?eid=..."
   }
 ]
 ```
@@ -82,12 +84,30 @@ If the header is missing or wrong, n8n's Header Auth returns **`403 Forbidden`**
   "output": "",
   "Document ID": "",
   "Reviewed By": "",
+  "Calendar Reminder": "No",
+  "Calendar Event Link": "",
   "Review Note": ""
 }
 ```
 
 - **Error response:** `400` if no file sent; `403` if API key missing/wrong (see note above); `500` if AI/Sheets step fails.
 - **Important:** both branches of the "Is it urgent?" IF node in this workflow must lead to a `Respond to Webhook` node, otherwise one branch will time out with no response (see assignment pitfalls).
+
+### 2.1 Calendar reminder feature (added Sep 13)
+
+When a processed document has **both** a real deadline (`Deadline` is not `"Not found"`) **and** `Urgency` is `High` or `Medium`, Workflow A now creates a real Google Calendar event (1-hour block starting at the processing time, on the primary calendar) as a reminder to act on the document, in addition to the existing Gmail notification. Two new fields are written to every row (both existing and new documents get them via Workflow B's passthrough):
+
+- **`Calendar Reminder`** — `"Yes"` if an event was created, `"No"` otherwise.
+- **`Calendar Event Link`** — the real `htmlLink` of the created Google Calendar event (a clickable URL), or an empty string when no event was created.
+
+Routing: an `If` node checks `Deadline != "Not found" AND (Urgency == "High" OR Urgency == "Medium")`. The **true** branch creates the calendar event (Google Calendar node, "Create" operation) and then sets `Calendar Reminder = "Yes"` / `Calendar Event Link = {{ $json.htmlLink }}` on an `Edit Fields` node before the Google Sheets append. The **false** branch skips straight to a second `Edit Fields1` node that sets `Calendar Reminder = "No"` / `Calendar Event Link = ""` (Fixed values) with "Include Other Input Fields" = All, so the rest of the row's fields pass through unchanged. Both branches converge into the same "Google Sheets - Append Row" node.
+
+- **Bugs found + fixed during implementation (Sep 13):**
+  1. **If node true/false outputs wired backwards** — the true branch was connected to the "no calendar" path and vice versa. Diagnosed via the If node's own Execution output panel (separate True Branch / False Branch tabs), which is more reliable than tracing overlapping connection lines on the canvas. Fixed by deleting and redrawing both connections.
+  2. **Missing `{{ }}` expression wrapper** — every field in the "Edit Fields" node (Document ID, Received At, ... including the new Calendar Event Link) was typed as a bare expression like `$('Set - Build Fields & Response').item.json['Document ID']`, **without** the surrounding `{{ }}`. n8n only evaluates JavaScript inside `{{ }}` — a bare expression in an Expression-mode field is stored/returned as a literal string. Confirmed by the field's "Result" preview echoing the raw text back instead of evaluating. Fixed by re-entering every field with the `{{ ... }}` wrapper (n8n auto-closes the trailing `}}` when you type the opening `{{`, so typing the extra closing brace yourself doubles it — worth knowing if this happens again).
+  3. **Google Sheets node's two new columns silently in Fixed mode** — `Calendar Reminder` and `Calendar Event Link` on the "Google Sheets - Append Row" node *displayed* `{{ $json["Calendar Reminder"] }}` and looked identical to the working expression fields, but were actually still in **Fixed** mode (no small `fx` icon to the left of the field, unlike the genuinely-expression fields next to them), so the literal text `{{ $json["Calendar Reminder"] }}` was written into the sheet instead of the evaluated value. Fixed by explicitly clicking the field's "Fixed" tab and then "Expression" tab to force the mode switch (the `fx` icon appearing confirms it stuck), rather than just clicking into the field (which shows the Fixed/Expression toggle regardless of which mode is actually active).
+  - **Lesson:** when an n8n text field shows `{{ }}` syntax, that alone does not prove it will be evaluated — always check for the small `fx` icon (or the "Result" preview under a focused field) before trusting the display.
+  - Verified end-to-end (Sep 13) with two real webhook calls: a High-urgency document with a real deadline produced a real Google Calendar event and `Calendar Reminder = "Yes"` with a working event link in the sheet; a Low-urgency document with no deadline produced `Calendar Reminder = "No"` and an empty link, with no calendar event created.
 
 ---
 
@@ -128,6 +148,7 @@ If the header is missing or wrong, n8n's Header Auth returns **`403 Forbidden`**
 - All responses are JSON, `Content-Type: application/json`.
 - `Status` values seen so far: `Processed`, `Needs Review` — the dashboard's status filter/badges should be based on these exact strings.
 - `Urgency` values seen so far: `High`, `Medium`, `Low`, `Not found`.
+- `Calendar Reminder` values: `Yes`, `No` (see section 2.1). `Calendar Event Link` is either a real Google Calendar URL or an empty string — the frontend should only render it as a link when non-empty.
 - CORS: each Webhook node's "Allowed Origins" is set to `http://localhost:5173` (the Vite dev server) during development; must be updated to the deployed URL before final submission if the app is hosted anywhere.
 
 - ℹ️ **This sheet is also written to by the original Part 1 workflow — by design, per the assignment.** There is an older workflow, "Smart Office Document Assistant" (built in Part 1, **Published/Active**, and it must stay that way): it's triggered by a **Google Drive Trigger polling every minute** for new files created in a specific Drive folder, runs its own PDF/text extraction → AI extraction, and **appends a new row to this exact same "Document Processing Log" spreadsheet** (confirmed by checking its Google Sheets node — same spreadsheet ID), then sends its own urgency-based Gmail alert and moves the file in Drive. This is **not** a leftover to clean up or disable — the master assignment doc explicitly requires it: "The Google Drive trigger from Part 1 must keep working" (section 4), one of the graded Required Tests (section 11) is "Both entry points — a file dropped into the Drive folder (Part 1) and a file sent from the application both appear in the same dashboard," and the Final Submission Checklist (section 16) and Minimum Success Criteria both explicitly require the Part 1 Drive trigger to still be running at submission time. Workflow A does not replace this workflow — it is a **second, parallel entry point** into the same pipeline/sheet, built for on-demand use from the app, while the Drive-folder path keeps working for anyone who prefers to just drop a file in Drive. The assignment's suggested (optional) clean architecture is to factor the shared processing steps into one sub-workflow called by both entry points via "Execute Sub-workflow" — we instead duplicated the logic into a separate workflow (Workflow A), which the assignment explicitly says is "acceptable, but students must then explain the maintenance cost in their reflection" — so this needs a short paragraph in the Reflection deliverable (section 12, #7). Action items before submission: (1) actually run the "both entry points" test — drop a file into the Part 1 Drive folder and confirm it shows up in the dashboard, keep it as evidence for section 11; (2) write the sub-workflow/duplication trade-off into the Reflection.

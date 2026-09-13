@@ -30,6 +30,11 @@ export const DEPARTMENT_LABELS = {
   Procurement: 'רכש',
 }
 
+export const CALENDAR_REMINDER_LABELS = {
+  Yes: 'כן',
+  No: 'לא',
+}
+
 function translate(map, value) {
   if (!value) return value
   return map[value] || value
@@ -39,3 +44,4 @@ export const translateUrgency = (value) => translate(URGENCY_LABELS, value)
 export const translateStatus = (value) => translate(STATUS_LABELS, value)
 export const translateDocumentType = (value) => translate(DOCUMENT_TYPE_LABELS, value)
 export const translateDepartment = (value) => translate(DEPARTMENT_LABELS, value)
+export const translateCalendarReminder = (value) => translate(CALENDAR_REMINDER_LABELS, value)

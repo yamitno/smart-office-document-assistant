@@ -6,6 +6,7 @@ import {
   translateStatus,
   translateDocumentType,
   translateDepartment,
+  translateCalendarReminder,
 } from '../utils/labels.js'
 import './Dashboard.css'
 
@@ -29,6 +30,15 @@ function StatusBadge({ value }) {
   return (
     <span className={`badge ${isProcessed ? 'badge-processed' : 'badge-review'}`}>
       {translateStatus(value)}
+    </span>
+  )
+}
+
+function CalendarReminderBadge({ value }) {
+  const isYes = value === 'Yes'
+  return (
+    <span className={`badge ${isYes ? 'badge-processed' : 'badge-review'}`}>
+      {translateCalendarReminder(value) || 'לא'}
     </span>
   )
 }
@@ -75,6 +85,7 @@ export default function Dashboard() {
       'Document Type': (doc) => translateDocumentType(doc['Document Type']) || 'לא ידוע',
       Status: (doc) => translateStatus(doc['Status']) || '',
       Department: (doc) => translateDepartment(doc['Department']) || '',
+      'Calendar Reminder': (doc) => translateCalendarReminder(doc['Calendar Reminder']) || 'לא',
     }
 
     return [...filtered].sort((a, b) => {
@@ -152,6 +163,7 @@ export default function Dashboard() {
               <SortableHeader label="דחיפות" column="Urgency" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
               <SortableHeader label="סטטוס" column="Status" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
               <SortableHeader label="מחלקה" column="Department" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+              <SortableHeader label="נקבעה תזכורת ביומן" column="Calendar Reminder" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
             </tr>
           </thead>
           <tbody>
@@ -171,11 +183,14 @@ export default function Dashboard() {
                   <StatusBadge value={doc['Status']} />
                 </td>
                 <td>{translateDepartment(doc['Department'])}</td>
+                <td>
+                  <CalendarReminderBadge value={doc['Calendar Reminder']} />
+                </td>
               </tr>
             ))}
             {!loading && sorted.length === 0 && (
               <tr>
-                <td colSpan={6} className="empty-row">
+                <td colSpan={7} className="empty-row">
                   לא נמצאו מסמכים תואמים.
                 </td>
               </tr>

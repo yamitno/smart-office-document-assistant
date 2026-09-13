@@ -7,6 +7,7 @@ import {
   translateStatus,
   translateDocumentType,
   translateDepartment,
+  translateCalendarReminder,
 } from '../utils/labels.js'
 import './DocumentDetail.css'
 
@@ -19,6 +20,7 @@ const FIELDS = [
   ['Urgency', 'דחיפות', translateUrgency],
   ['Department', 'מחלקה', translateDepartment],
   ['Status', 'סטטוס', translateStatus],
+  ['Calendar Reminder', 'נקבעה תזכורת/הערה ביומן', translateCalendarReminder],
   ['Requested Action', 'פעולה נדרשת', null],
   ['Summary', 'תקציר', null],
   ['Reviewed By', 'נבדק על ידי', null],
@@ -102,6 +104,16 @@ export default function DocumentDetail() {
             <dd>{(translate ? translate(doc[key]) : doc[key]) || '—'}</dd>
           </div>
         ))}
+        {doc['Calendar Event Link'] && (
+          <div className="detail-row" key="Calendar Event Link">
+            <dt>קישור לאירוע ביומן</dt>
+            <dd>
+              <a href={doc['Calendar Event Link']} target="_blank" rel="noreferrer">
+                פתיחת האירוע ביומן
+              </a>
+            </dd>
+          </div>
+        )}
       </dl>
 
       {doc['Reviewed By'] ? (

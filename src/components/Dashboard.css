@@ -91,6 +91,11 @@
   white-space: nowrap;
 }
 
+.doc-table th:last-child,
+.doc-table td:last-child {
+  min-width: 160px;
+}
+
 .doc-table thead th {
   font-weight: 600;
   color: var(--muted);

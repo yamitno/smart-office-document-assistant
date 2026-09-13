@@ -36,6 +36,7 @@ A small React web app that sits in front of an existing n8n automation (Part 1) 
 | F6 | Document detail + human review ("Mark as reviewed" with a note) | Document detail |
 | F7 | Readable error states for every failure mode (see table below) | all screens |
 | F8 | All configuration (URLs, secret, size limit) comes from `.env`, never hardcoded | — |
+| F9 | Automatic calendar reminder — a real Google Calendar event is created whenever a processed document has both a real deadline and High/Medium urgency; the dashboard and detail view show whether a reminder was set and link to the event | Dashboard, Document detail |
 
 ## Demo video
 
@@ -68,6 +69,10 @@ While integrating Part 2, a pre-existing bug was found in Part 1's own n8n workf
 | ![Sheet before and after](screenshots/09_part1_sheet_before_after.jpg) |
 
 This also doubles as evidence for the "both entry points" Required Test (Section 11): the fixed Part 1 Drive trigger keeps appending rows to the exact same sheet the app's Workflow A and Workflow B read from and write to.
+
+## Calendar reminder feature — evidence
+
+Workflow A now creates a real Google Calendar event whenever a processed document has both a real deadline and High/Medium urgency (see `CONTRACT.md` section 2.1 for the full implementation notes and bugs found/fixed along the way). Verified end-to-end with two real webhook calls: a High-urgency invoice with a real deadline produced a real calendar event and `Calendar Reminder = Yes` with a working event link in the sheet, while a Low-urgency document with no deadline produced `Calendar Reminder = No` with no event created — both confirmed via the n8n execution log, the Google Sheet, and the created Google Calendar event's own data.
 
 ### Supported file types
 

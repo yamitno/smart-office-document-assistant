@@ -1,0 +1,710 @@
+{
+  "name": "Smart Office Document Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "a1425015-668f-42f8-b6fe-04a6a6771819",
+      "name": "Get File (Google Drive Download)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -688,
+        352
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WLm1QYaSglGjm2pY",
+          "name": "Google Drive account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "dd79e832-fc3d-40a5-b365-a71384781ce3"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cc044ec4-67b0-4f5c-b2c7-69c50b0836f1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "84365f18-f3b9-45e6-8502-8e9b8c2d1ce6",
+      "name": "Route by File Type (Switch)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -448,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "8f53aa9c-5a64-4004-a072-43f384c249d7",
+      "name": "Extract PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d2a5384a-f5c5-4689-9411-e435024a5a1d",
+      "name": "Normalize (PDF)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "a70ea394-e82a-4f15-a862-3b0a4e209183",
+      "name": "Extract Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "74c9cc38-962c-4f6a-a7f1-2c32d45949ac",
+      "name": "Normalize (Text)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "=Not found - unsupported file format ({{ $binary.data.fileExtension }})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7685d746-ed37-441b-b0cf-60eb348bfd00",
+      "name": "Normalize (Unsupported Format)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.extractedText }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "document_type",
+              "description": "Choose one: invoice, request, report, complaint, contract, quote, or other."
+            },
+            {
+              "name": "sender_or_company",
+              "description": "Name of the person or organization. Use 'Not found' when absent."
+            },
+            {
+              "name": "summary",
+              "description": "Explain the document in no more than three short sentences."
+            },
+            {
+              "name": "requested_action",
+              "description": "What should the company do next? Use 'No action found' when absent."
+            },
+            {
+              "name": "deadline",
+              "description": "Return the deadline exactly as written, or 'Not found'."
+            },
+            {
+              "name": "urgency",
+              "description": "Low, Medium, or High."
+            },
+            {
+              "name": "department",
+              "description": "Sales, Finance, Support, HR, Management, or General."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f631c378-49a6-4cf4-aaad-4e6dea209a0d",
+      "name": "Understand (Information Extractor)",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        400,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "1_5MpRa93aLNz4zuVskRVGmuJgbTFreFZMilqSvcbNok"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=[object Object]",
+          "mode": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "951c7c16-7158-440d-959d-6d4efac3c9d0",
+      "name": "Record (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        768,
+        -16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "46hkrLqiawHFinbf",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "urgency-condition",
+              "leftValue": "={{  $json[\"Urgency\"] }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "12b61480-62d6-4042-888d-51f5e78f468c",
+      "name": "Decide (IF: Is it urgent?)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "yamityaffe@gmail.com",
+        "subject": "=URGENT: {{  $json[\"Document Type\"] }} from {{  $json[\"Sender / Company\"] }} ",
+        "message": "=A new URGENT document was processed.\n\nFile Name: {{  $('New File (Google Drive Trigger)').item.json.name }}\nSender / Company: {{  $json[\"Sender / Company\"] }}\nSummary: {{  $json[\"Summary\"] }}\nRequested Action: {{  $json[\"Requested Action\"] }}\nDeadline: {{  $json[\"Deadline\"] }}\nUrgency: {{  $json[\"Urgency\"] }}\nDepartment: {{  $json[\"Department\"] }}\nFile Link: {{  $('New File (Google Drive Trigger)').item.json.webViewLink }} ",
+        "options": {}
+      },
+      "id": "479ad006-56c0-4424-838d-9643dba99cdc",
+      "name": "Notify (Gmail - Urgent)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        112
+      ],
+      "webhookId": "172f21b9-772c-4abb-b3b0-4a54367cdea7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AvfQ5BLrdd86mBtV",
+          "name": "Gmail account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "yamityaffe@gmail.com",
+        "subject": "=Document processed: {{ $('New File (Google Drive Trigger)').item.json.name }}",
+        "message": "=A new document was processed successfully.\n\nFile Name: {{  $('New File (Google Drive Trigger)').item.json.name }}\nDocument Type: {{  $json[\"Document Type\"] }}\nSender / Company: {{  $json[\"Sender / Company\"] }}\nSummary: {{  $json[\"Summary\"] }}\nRequested Action: {{  $json[\"Requested Action\"] }}\nDeadline: {{  $json[\"Deadline\"] }}\nUrgency: {{  $json[\"Urgency\"] }}\nDepartment: {{  $json[\"Department\"] }}\nFile Link: {{  $('New File (Google Drive Trigger)').item.json.webViewLink }} ",
+        "options": {}
+      },
+      "id": "e5f76d25-90ca-4386-9c47-28bec3c451d0",
+      "name": "Notify (Gmail - Normal)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1552,
+        352
+      ],
+      "webhookId": "77879cc8-978d-46e4-b413-ea995dbdf2de",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AvfQ5BLrdd86mBtV",
+          "name": "Gmail account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "mode": "id",
+          "value": "={{ $('New File (Google Drive Trigger)').item.json.id }}"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "mode": "list",
+          "value": "1Xy5In4ZSaJtd1aAfmvSZp5u3UsO-dShv"
+        }
+      },
+      "id": "e131b276-59dd-435e-909a-c78bf9b309ed",
+      "name": "Finish (Move to Processed)",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1808,
+        192
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WLm1QYaSglGjm2pY",
+          "name": "Google Drive account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0e28ee52-f979-4aeb-a992-6390ed675e12",
+              "leftValue": "={{ $('Understand (Information Extractor)').item.json.output.deadline }}",
+              "rightValue": "=Not found",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        752,
+        496
+      ],
+      "id": "7bd2a6c8-938b-452a-a4e0-ea815122c2f8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "yamityaffe@gmail.com",
+          "mode": "list",
+          "cachedResultName": "yamityaffe@gmail.com"
+        },
+        "additionalFields": {
+          "description": "={{ $('Understand (Information Extractor)').item.json.output.document_type }} - {{ $('Understand (Information Extractor)').item.json.output.sender_or_company }}",
+          "summary": "={{ $('Understand (Information Extractor)').item.json.output.summary }} \nRequested action: {{ $('Understand (Information Extractor)').item.json.output.requested_action }}\nDeadline: {{ $('Understand (Information Extractor)').item.json.output.deadline }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        432
+      ],
+      "id": "ccf3b9a9-641a-4973-8651-0f4aaa27ac35",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "00jYIePSAkvRHjbh",
+          "name": "Google Calendar account 25"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1pGIQWQb2fSvJHwA8kdiCTYDFd9nVBqOj"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        320
+      ],
+      "id": "f0b6a606-176e-424d-ba2f-38bb1341f604",
+      "name": "New File (Google Drive Trigger)",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WLm1QYaSglGjm2pY",
+          "name": "Google Drive account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        336,
+        320
+      ],
+      "id": "074833dc-b9da-47fe-bf3b-7bd550aeaf0b",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "Tq25IZOFZGr3ZB2Y",
+          "name": "Ollama account 15"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get File (Google Drive Download)": {
+      "main": [
+        [
+          {
+            "node": "Route by File Type (Switch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by File Type (Switch)": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize (Unsupported Format)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF": {
+      "main": [
+        [
+          {
+            "node": "Normalize (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text": {
+      "main": [
+        [
+          {
+            "node": "Normalize (Text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (Text)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (Unsupported Format)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Understand (Information Extractor)": {
+      "main": [
+        [
+          {
+            "node": "Record (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "Decide (IF: Is it urgent?)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide (IF: Is it urgent?)": {
+      "main": [
+        [
+          {
+            "node": "Notify (Gmail - Urgent)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify (Gmail - Normal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify (Gmail - Urgent)": {
+      "main": [
+        [
+          {
+            "node": "Finish (Move to Processed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify (Gmail - Normal)": {
+      "main": [
+        [
+          {
+            "node": "Finish (Move to Processed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New File (Google Drive Trigger)": {
+      "main": [
+        [
+          {
+            "node": "Get File (Google Drive Download)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fda43a44-94d4-4fa9-a8e5-b7b1addc3379",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9a7e80d5d634c03304165d9eb50d45c51144a4d18b6aec140de8af0f68fc5038"
+  },
+  "nodeGroups": [],
+  "id": "sTwT15tU8CP5ndDX",
+  "tags": []
+}

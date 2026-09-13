@@ -1,0 +1,1023 @@
+{
+  "name": "Smart Office - Workflow A (Process Document API)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "yamit-process-document",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173"
+        }
+      },
+      "id": "94c8dc4b-9f04-4572-986f-73ffd15948ab",
+      "name": "Webhook (POST /process-document)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        208
+      ],
+      "webhookId": "1fe2fa89-bc59-4a20-97ef-f1e5f6bda29f",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UTsINeQVHiSMcx1H",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "body.file_base64",
+        "options": {
+          "fileName": "={{ $json.body.file_name }}",
+          "mimeType": "={{ $json.body.mime_type }}"
+        }
+      },
+      "id": "b6eecfbc-f0c6-4c8a-b3c4-d27a2315c6d1",
+      "name": "Convert Base64 to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "cb98b4a4-4614-47d0-86ff-f7c3f98cbebd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5c87133c-259b-47ea-9d33-da4063310505"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2731171d-e1fc-48c9-b6bf-991ebddc100c",
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DOCX"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "0e93640a-d56b-48d4-82eb-7be9b0068b7f",
+      "name": "Route by File Type (Switch)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -224,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "0448c7c4-e937-46ed-889a-834e9663f674",
+      "name": "Extract PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "157a72df-2b87-4481-b1f3-4f0c8523b5d5",
+      "name": "Normalize (PDF)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "979cf2d1-3300-420f-995f-119c541fcc80",
+      "name": "Extract Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e98625d2-9c9d-42c0-bde5-db5efe2d1564",
+      "name": "Normalize (Text)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "extractedText",
+              "value": "=Not found - unsupported file format ({{ $json.mime_type }})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "99bdd77d-528c-4cbd-84e5-70e6f0c37cc2",
+      "name": "Normalize (Unsupported Format)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.extractedText }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "document_type",
+              "description": "Choose one: invoice, request, report, complaint, contract, quote, or other."
+            },
+            {
+              "name": "sender_or_company",
+              "description": "Name of the person or organization. Use 'Not found' when absent."
+            },
+            {
+              "name": "summary",
+              "description": "Explain the document in no more than three short sentences."
+            },
+            {
+              "name": "requested_action",
+              "description": "What should the company do next? Use 'No action found' when absent."
+            },
+            {
+              "name": "deadline",
+              "description": "Return the deadline exactly as written, or 'Not found'."
+            },
+            {
+              "name": "urgency",
+              "description": "Low, Medium, or High."
+            },
+            {
+              "name": "department",
+              "description": "Sales, Finance, Support, HR, Management, or General."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "24742bdd-31a5-49f9-84b3-18d7b31eeeec",
+      "name": "Understand (Information Extractor)",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        464,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.file_name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1Xy5In4ZSaJtd1aAfmvSZp5u3UsO-dShv"
+        },
+        "options": {}
+      },
+      "id": "de3a1e35-8d19-4c41-a2d8-97ec2c79d3f5",
+      "name": "Google Drive - Upload File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        528
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WLm1QYaSglGjm2pY",
+          "name": "Google Drive account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "e73246b7-04bf-4969-bb75-8a261f4bb6f8",
+      "name": "Merge (Fields + Uploaded File)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        688,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "Document ID",
+              "value": "=exec-{{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "Received At",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "File Name",
+              "value": "={{ $('Google Drive - Upload File').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "File Link",
+              "value": "={{ $('Google Drive - Upload File').item.json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "Document Type",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.document_type }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "Sender / Company",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.sender_or_company }}",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "Summary",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "a8",
+              "name": "Requested Action",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.requested_action }}",
+              "type": "string"
+            },
+            {
+              "id": "a9",
+              "name": "Deadline",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.deadline }}",
+              "type": "string"
+            },
+            {
+              "id": "a10",
+              "name": "Urgency",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.urgency }}",
+              "type": "string"
+            },
+            {
+              "id": "a11",
+              "name": "Department",
+              "value": "={{ $('Understand (Information Extractor)').item.json.output.department }}",
+              "type": "string"
+            },
+            {
+              "id": "a12",
+              "name": "Status",
+              "value": "={{ ($('Understand (Information Extractor)').item.json.output.deadline === 'Not found' || $('Understand (Information Extractor)').item.json.output.sender_or_company === 'Not found' || $('Understand (Information Extractor)').item.json.output.requested_action === 'No action found') ? 'Needs Review' : 'Processed' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8922432d-ea03-4da7-960f-e9f2d88cad7f",
+      "name": "Set - Build Fields & Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "1_5MpRa93aLNz4zuVskRVGmuJgbTFreFZMilqSvcbNok"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Untitled"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Received At": "={{ $json[\"Received At\"] }}",
+            "File Name": "={{ $json[\"File Name\"] }}",
+            "File Link": "={{ $json[\"File Link\"] }}",
+            "Document Type": "={{ $json[\"Document Type\"] }}",
+            "Sender / Company": "={{ $json[\"Sender / Company\"] }}",
+            "Summary": "={{ $json[\"Summary\"] }}",
+            "Requested Action": "={{ $json[\"Requested Action\"] }}",
+            "Deadline": "={{ $json[\"Deadline\"] }}",
+            "Urgency": "={{ $json[\"Urgency\"] }}",
+            "Department": "={{ $json[\"Department\"] }}",
+            "Status": "={{ $json[\"Status\"] }}",
+            "Document ID": "={{ $json[\"Document ID\"] }}",
+            "Reviewed By": "",
+            "Review Note": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File Link",
+              "displayName": "File Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Type",
+              "displayName": "Document Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender / Company",
+              "displayName": "Sender / Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requested Action",
+              "displayName": "Requested Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document ID",
+              "displayName": "Document ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviewed By",
+              "displayName": "Reviewed By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review Note",
+              "displayName": "Review Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3bfbd2dc-5c45-490d-8e00-8cc6e09f68ad",
+      "name": "Google Sheets - Append Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1136,
+        368
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "46hkrLqiawHFinbf",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "urgency-condition",
+              "leftValue": "={{ $json[\"Urgency\"] }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9283d156-278d-4243-8cff-3588bb998290",
+      "name": "IF - Check Urgency",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "yamityaffe@gmail.com",
+        "subject": "=URGENT: {{ $json[\"Document Type\"] }} from {{ $json[\"Sender / Company\"] }}",
+        "message": "=A new URGENT document was processed.\n\nFile Name: {{ $json[\"File Name\"] }}\nSender / Company: {{ $json[\"Sender / Company\"] }}\nSummary: {{ $json[\"Summary\"] }}\nRequested Action: {{ $json[\"Requested Action\"] }}\nDeadline: {{ $json[\"Deadline\"] }}\nUrgency: {{ $json[\"Urgency\"] }}\nDepartment: {{ $json[\"Department\"] }}\nFile Link: {{ $json[\"File Link\"] }}",
+        "options": {}
+      },
+      "id": "c31aee8e-7711-4f91-9bdf-bb75dbd1f66e",
+      "name": "Notify (Gmail - Urgent)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1584,
+        256
+      ],
+      "webhookId": "c523e7cc-2630-49e0-abe2-3df81cdad54a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AvfQ5BLrdd86mBtV",
+          "name": "Gmail account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "yamityaffe@gmail.com",
+        "subject": "=Document processed: {{ $json[\"File Name\"] }}",
+        "message": "=A new document was processed successfully.\n\nFile Name: {{ $json[\"File Name\"] }}\nDocument Type: {{ $json[\"Document Type\"] }}\nSender / Company: {{ $json[\"Sender / Company\"] }}\nSummary: {{ $json[\"Summary\"] }}\nRequested Action: {{ $json[\"Requested Action\"] }}\nDeadline: {{ $json[\"Deadline\"] }}\nUrgency: {{ $json[\"Urgency\"] }}\nDepartment: {{ $json[\"Department\"] }}\nFile Link: {{ $json[\"File Link\"] }}",
+        "options": {}
+      },
+      "id": "e383081b-371b-4273-b3e9-3f3dfb1c56b4",
+      "name": "Notify (Gmail - Normal)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1584,
+        496
+      ],
+      "webhookId": "e23de2d4-38ac-4025-a321-021945f54fe0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AvfQ5BLrdd86mBtV",
+          "name": "Gmail account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"processed\",\n  \"document_id\": $('Set - Build Fields & Response').item.json[\"Document ID\"],\n  \"file_name\": $('Set - Build Fields & Response').item.json[\"File Name\"],\n  \"file_link\": $('Set - Build Fields & Response').item.json[\"File Link\"],\n  \"received_at\": $('Set - Build Fields & Response').item.json[\"Received At\"],\n  \"fields\": {\n    \"document_type\": $('Set - Build Fields & Response').item.json[\"Document Type\"],\n    \"sender_or_company\": $('Set - Build Fields & Response').item.json[\"Sender / Company\"],\n    \"summary\": $('Set - Build Fields & Response').item.json[\"Summary\"],\n    \"requested_action\": $('Set - Build Fields & Response').item.json[\"Requested Action\"],\n    \"deadline\": $('Set - Build Fields & Response').item.json[\"Deadline\"],\n    \"urgency\": $('Set - Build Fields & Response').item.json[\"Urgency\"],\n    \"department\": $('Set - Build Fields & Response').item.json[\"Department\"]\n  },\n  \"notification_sent\": true\n} }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "df000cc0-4b9c-45dd-8b51-893185363442",
+      "name": "Respond to Webhook (Urgent)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"processed\",\n  \"document_id\": $('Set - Build Fields & Response').item.json[\"Document ID\"],\n  \"file_name\": $('Set - Build Fields & Response').item.json[\"File Name\"],\n  \"file_link\": $('Set - Build Fields & Response').item.json[\"File Link\"],\n  \"received_at\": $('Set - Build Fields & Response').item.json[\"Received At\"],\n  \"fields\": {\n    \"document_type\": $('Set - Build Fields & Response').item.json[\"Document Type\"],\n    \"sender_or_company\": $('Set - Build Fields & Response').item.json[\"Sender / Company\"],\n    \"summary\": $('Set - Build Fields & Response').item.json[\"Summary\"],\n    \"requested_action\": $('Set - Build Fields & Response').item.json[\"Requested Action\"],\n    \"deadline\": $('Set - Build Fields & Response').item.json[\"Deadline\"],\n    \"urgency\": $('Set - Build Fields & Response').item.json[\"Urgency\"],\n    \"department\": $('Set - Build Fields & Response').item.json[\"Department\"]\n  },\n  \"notification_sent\": true\n} }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "ef8df4a5-ba4b-4985-88b0-13f8cda01041",
+      "name": "Respond to Webhook (Normal)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        400,
+        416
+      ],
+      "id": "57fc8adc-8ed9-40fc-a6b5-d1786df8e3ba",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "Tq25IZOFZGr3ZB2Y",
+          "name": "Ollama account 15"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract plain text from a .docx binary (DOCX = a ZIP archive containing\n// word/document.xml). The Code node sandbox disallows require('zlib') and\n// has no global DecompressionStream, so this includes a small pure-JS\n// raw DEFLATE (RFC 1951) decoder with no external dependencies at all.\nconst item = $input.first();\nconst binaryPropertyName = Object.keys(item.binary || {})[0] || 'data';\nconst buffer = await this.helpers.getBinaryDataBuffer(0, binaryPropertyName);\n\nfunction inflateRaw(input) {\n  let pos = 0;\n  let bitBuf = 0;\n  let bitCnt = 0;\n  const out = [];\n\n  function getBit() {\n    if (bitCnt === 0) {\n      bitBuf = input[pos++];\n      bitCnt = 8;\n    }\n    const bit = bitBuf & 1;\n    bitBuf >>= 1;\n    bitCnt--;\n    return bit;\n  }\n\n  function getBits(n) {\n    let val = 0;\n    for (let i = 0; i < n; i++) val |= getBit() << i;\n    return val;\n  }\n\n  function buildHuffman(lengths) {\n    const maxBits = Math.max(0, ...lengths);\n    const blCount = new Array(maxBits + 1).fill(0);\n    for (const l of lengths) if (l > 0) blCount[l]++;\n    let code = 0;\n    const nextCode = new Array(maxBits + 1).fill(0);\n    blCount[0] = 0;\n    for (let bits = 1; bits <= maxBits; bits++) {\n      code = (code + blCount[bits - 1]) << 1;\n      nextCode[bits] = code;\n    }\n    const map = new Array(maxBits + 1);\n    for (let b = 0; b <= maxBits; b++) map[b] = new Map();\n    for (let n = 0; n < lengths.length; n++) {\n      const len = lengths[n];\n      if (len > 0) {\n        map[len].set(nextCode[len], n);\n        nextCode[len]++;\n      }\n    }\n    return { map, maxBits };\n  }\n\n  function decodeSymbol(huff) {\n    let code = 0;\n    for (let len = 1; len <= huff.maxBits; len++) {\n      code = (code << 1) | getBit();\n      const sym = huff.map[len].get(code);\n      if (sym !== undefined) return sym;\n    }\n    throw new Error('Invalid Huffman code while inflating docx XML');\n  }\n\n  const LENGTH_BASE = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];\n  const LENGTH_EXTRA = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];\n  const DIST_BASE = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];\n  const DIST_EXTRA = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];\n  const CODE_LENGTH_ORDER = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];\n\n  let fixedLit = null;\n  let fixedDist = null;\n  function getFixedHuffmans() {\n    if (!fixedLit) {\n      const litLengths = new Array(288);\n      for (let i = 0; i <= 143; i++) litLengths[i] = 8;\n      for (let i = 144; i <= 255; i++) litLengths[i] = 9;\n      for (let i = 256; i <= 279; i++) litLengths[i] = 7;\n      for (let i = 280; i <= 287; i++) litLengths[i] = 8;\n      fixedLit = buildHuffman(litLengths);\n      const distLengths = new Array(30).fill(5);\n      fixedDist = buildHuffman(distLengths);\n    }\n    return { lit: fixedLit, dist: fixedDist };\n  }\n\n  function inflateBlockData(lit, dist) {\n    while (true) {\n      const sym = decodeSymbol(lit);\n      if (sym < 256) {\n        out.push(sym);\n      } else if (sym === 256) {\n        break;\n      } else {\n        const li = sym - 257;\n        const length = LENGTH_BASE[li] + getBits(LENGTH_EXTRA[li]);\n        const dsym = decodeSymbol(dist);\n        const distance = DIST_BASE[dsym] + getBits(DIST_EXTRA[dsym]);\n        let start = out.length - distance;\n        for (let i = 0; i < length; i++) {\n          out.push(out[start + i]);\n        }\n      }\n    }\n  }\n\n  let finalBlock = false;\n  while (!finalBlock) {\n    finalBlock = getBit() === 1;\n    const type = getBits(2);\n    if (type === 0) {\n      bitBuf = 0;\n      bitCnt = 0;\n      const len = input[pos] | (input[pos + 1] << 8);\n      pos += 4;\n      for (let i = 0; i < len; i++) out.push(input[pos++]);\n    } else if (type === 1) {\n      const { lit, dist } = getFixedHuffmans();\n      inflateBlockData(lit, dist);\n    } else if (type === 2) {\n      const hlit = getBits(5) + 257;\n      const hdist = getBits(5) + 1;\n      const hclen = getBits(4) + 4;\n      const clLengths = new Array(19).fill(0);\n      for (let i = 0; i < hclen; i++) {\n        clLengths[CODE_LENGTH_ORDER[i]] = getBits(3);\n      }\n      const clHuff = buildHuffman(clLengths);\n      const allLengths = [];\n      while (allLengths.length < hlit + hdist) {\n        const sym = decodeSymbol(clHuff);\n        if (sym < 16) {\n          allLengths.push(sym);\n        } else if (sym === 16) {\n          const repeat = getBits(2) + 3;\n          const prev = allLengths[allLengths.length - 1];\n          for (let i = 0; i < repeat; i++) allLengths.push(prev);\n        } else if (sym === 17) {\n          const repeat = getBits(3) + 3;\n          for (let i = 0; i < repeat; i++) allLengths.push(0);\n        } else if (sym === 18) {\n          const repeat = getBits(7) + 11;\n          for (let i = 0; i < repeat; i++) allLengths.push(0);\n        }\n      }\n      const litLengths = allLengths.slice(0, hlit);\n      const distLengths = allLengths.slice(hlit, hlit + hdist);\n      const lit = buildHuffman(litLengths);\n      const dist = buildHuffman(distLengths);\n      inflateBlockData(lit, dist);\n    } else {\n      throw new Error('Invalid DEFLATE block type: ' + type);\n    }\n  }\n\n  return Buffer.from(out);\n}\n\nfunction findZipEntryRaw(buf, entryName) {\n  let offset = 0;\n  while (offset < buf.length - 4) {\n    if (buf.readUInt32LE(offset) === 0x04034b50) {\n      const compMethod = buf.readUInt16LE(offset + 8);\n      const compSize = buf.readUInt32LE(offset + 18);\n      const nameLen = buf.readUInt16LE(offset + 26);\n      const extraLen = buf.readUInt16LE(offset + 28);\n      const nameStart = offset + 30;\n      const name = buf.slice(nameStart, nameStart + nameLen).toString('utf8');\n      const dataStart = nameStart + nameLen + extraLen;\n      if (name === entryName) {\n        const compData = buf.slice(dataStart, dataStart + compSize);\n        return { compMethod, compData };\n      }\n      offset = dataStart + compSize;\n    } else {\n      offset++;\n    }\n  }\n  throw new Error('Entry not found in docx: ' + entryName);\n}\n\nconst entry = findZipEntryRaw(buffer, 'word/document.xml');\nlet xmlBuffer;\nif (entry.compMethod === 0) {\n  xmlBuffer = entry.compData;\n} else if (entry.compMethod === 8) {\n  xmlBuffer = inflateRaw(entry.compData);\n} else {\n  throw new Error('Unsupported ZIP compression method: ' + entry.compMethod);\n}\nconst xml = xmlBuffer.toString('utf8');\n\nlet text = '';\nfor (const para of xml.split('</w:p>')) {\n  const runs = para.match(/<w:t[^>]*>([^<]*)<\\/w:t>/g) || [];\n  const paraText = runs.map((r) => r.replace(/<[^>]+>/g, '')).join('');\n  if (paraText) text += paraText + '\\n';\n}\n\nreturn [\n  {\n    json: { data: text.trim() },\n    binary: item.binary,\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        400
+      ],
+      "id": "06f373d4-c952-4b74-9d2f-fb380b053ecb",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e295d78-1ef6-43f1-8a69-1f00fde50be4",
+              "name": "extractedText",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        672
+      ],
+      "id": "b7bf3904-5542-417c-84a7-7f029d06fd1b",
+      "name": "Normalize (DOCX)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (POST /process-document)": {
+      "main": [
+        [
+          {
+            "node": "Convert Base64 to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Base64 to File": {
+      "main": [
+        [
+          {
+            "node": "Route by File Type (Switch)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive - Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by File Type (Switch)": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize (Unsupported Format)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF": {
+      "main": [
+        [
+          {
+            "node": "Normalize (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text": {
+      "main": [
+        [
+          {
+            "node": "Normalize (Text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (Text)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (Unsupported Format)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Understand (Information Extractor)": {
+      "main": [
+        [
+          {
+            "node": "Merge (Fields + Uploaded File)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload File": {
+      "main": [
+        [
+          {
+            "node": "Merge (Fields + Uploaded File)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge (Fields + Uploaded File)": {
+      "main": [
+        [
+          {
+            "node": "Set - Build Fields & Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Build Fields & Response": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Append Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Append Row": {
+      "main": [
+        [
+          {
+            "node": "IF - Check Urgency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Check Urgency": {
+      "main": [
+        [
+          {
+            "node": "Notify (Gmail - Urgent)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify (Gmail - Normal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify (Gmail - Urgent)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (Urgent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify (Gmail - Normal)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (Normal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Normalize (DOCX)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (DOCX)": {
+      "main": [
+        [
+          {
+            "node": "Understand (Information Extractor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "aa0ee835-0bc8-4871-8de7-84dcf72d61a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9a7e80d5d634c03304165d9eb50d45c51144a4d18b6aec140de8af0f68fc5038"
+  },
+  "nodeGroups": [],
+  "id": "dseN1oKbNowuQXfL",
+  "tags": []
+}

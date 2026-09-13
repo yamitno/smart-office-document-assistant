@@ -78,6 +78,10 @@ npm run dev
 - **The app has no database of its own.** The Google Sheet behind Workflow B is the single source of truth for the dashboard. If the sheet is unreachable, the dashboard is empty (not broken — just empty).
 - **Node duplication across the three workflows.** Shared processing steps (file extraction, the Google Sheets append, etc.) are duplicated across Workflow A and the original Part 1 flow rather than factored into a sub-workflow. See `Reflection.md` for the maintenance-cost trade-off.
 
+## n8n workflow exports
+
+The four n8n workflows behind this app are exported as JSON in [`workflows/`](workflows/): `workflow-a-process-document.json`, `workflow-b-list-documents.json`, `workflow-c-mark-as-reviewed.json`, and `workflow-part1-drive-trigger.json` (the original Part 1 Google Drive trigger flow). These are workflow exports, not credential exports — no secrets are included, only references to each node's saved n8n credential by id/name. To re-import and run them, you'll need to reconnect the Google Sheets, Google Drive, and Gmail credentials in your own n8n instance and re-point each webhook's "Allowed Origins" / production URL as needed.
+
 ## Single run command
 
 ```bash

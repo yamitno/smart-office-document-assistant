@@ -1,0 +1,361 @@
+{
+  "name": "Smart Office - Workflow C (Mark as Reviewed)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "yamit-review",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173"
+        }
+      },
+      "id": "ceba0637-8c53-49e1-85dc-b5a3a43a4860",
+      "name": "Webhook (POST /review)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        80
+      ],
+      "webhookId": "898dda7f-2260-455d-8cf3-fc2cd516cd97",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UTsINeQVHiSMcx1H",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "ce31036b-06da-4c6c-ad03-d0d6889e3c99",
+              "leftValue": "={{ $json.body.document_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": true
+        }
+      },
+      "id": "79f703fd-6cff-4116-b357-e601928b64ed",
+      "name": "IF - Has document_id",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "id",
+          "value": "1_5MpRa93aLNz4zuVskRVGmuJgbTFreFZMilqSvcbNok"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Untitled"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Document ID": "={{ $json.body.document_id }}",
+            "Status": "={{ $json.body.status || 'Processed' }}",
+            "Reviewed By": "={{ $json.body['Reviewed By'] }}",
+            "Review Note": "={{ $json.body['Review Note'] || '' }}",
+            "row_number": "={{ $json.body.document_id }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "File Link",
+              "displayName": "File Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Document Type",
+              "displayName": "Document Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Sender / Company",
+              "displayName": "Sender / Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Requested Action",
+              "displayName": "Requested Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Document ID",
+              "displayName": "Document ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reviewed By",
+              "displayName": "Reviewed By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review Note",
+              "displayName": "Review Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "2f4040a3-651c-4c69-992d-783413eb43b2",
+      "name": "Google Sheets - Update Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "46hkrLqiawHFinbf",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"updated\", \"document_id\": $json[\"Document ID\"] } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "60c052ce-b010-4ad3-96a4-ed9cc988587a",
+      "name": "Respond - Updated",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"error\", \"error_code\": \"NOT_FOUND\", \"message\": \"No document_id in request body\" } }}",
+        "options": {
+          "responseCode": 404
+        }
+      },
+      "id": "b3227bf7-af8d-4447-b9dc-8c0d95afa79a",
+      "name": "Respond - Missing ID (404)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        208
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (POST /review)": {
+      "main": [
+        [
+          {
+            "node": "IF - Has document_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Has document_id": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Missing ID (404)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Row": {
+      "main": [
+        [
+          {
+            "node": "Respond - Updated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2ce7a776-1537-4f61-b7b4-298dd9e738fb",
+  "meta": {
+    "instanceId": "9a7e80d5d634c03304165d9eb50d45c51144a4d18b6aec140de8af0f68fc5038"
+  },
+  "nodeGroups": [],
+  "id": "fLuqrHdnzuTXBBBV",
+  "tags": []
+}

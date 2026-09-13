@@ -1,0 +1,110 @@
+{
+  "name": "Smart Office - Workflow B (List Documents)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "yamit-documents",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173"
+        }
+      },
+      "id": "bf1b61ca-715e-4a68-ba30-2565b877ab81",
+      "name": "Webhook (GET /documents)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        -144
+      ],
+      "webhookId": "af4efdb5-e50d-4323-a3af-62dee9ad9e5a",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UTsINeQVHiSMcx1H",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "mode": "id",
+          "value": "1_5MpRa93aLNz4zuVskRVGmuJgbTFreFZMilqSvcbNok"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Untitled"
+        },
+        "options": {}
+      },
+      "id": "1276e229-743b-44fd-b678-5fafbfe5657a",
+      "name": "Google Sheets - Get Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -368,
+        -144
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "46hkrLqiawHFinbf",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "7cfc5603-708c-4fe3-8bae-35bb018a8546",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -144,
+        -144
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook (GET /documents)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Get Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Get Rows": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "378a51af-1cad-4310-8f24-349ede75a853",
+  "meta": {
+    "instanceId": "9a7e80d5d634c03304165d9eb50d45c51144a4d18b6aec140de8af0f68fc5038"
+  },
+  "nodeGroups": [],
+  "id": "Bmvh14ti2MzJ1T9m",
+  "tags": []
+}

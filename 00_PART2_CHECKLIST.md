@@ -54,5 +54,22 @@ Tracks progress against SPEC.md and CONTRACT.md. Check items off as they land.
 - [x] Three real n8n bugs found and fixed (wrong If-node wiring, missing `{{ }}` expression wrapper, Sheets node silently in Fixed mode) — documented in `CONTRACT.md` section 2.1
 - [x] Verified end-to-end with two real webhook calls (High-urgency+deadline → real event created; Low-urgency/no-deadline → no event)
 - [x] `CONTRACT.md` / `README.md` updated
-- [ ] **`workflows/workflow-a-process-document.json` is stale** — it still reflects the workflow *before* the calendar-reminder feature and bug fixes (last exported before today's changes). Needs a fresh export from n8n before submission (see note below).
+- [x] **`workflows/workflow-a-process-document.json` re-exported (Sep 13)** — fresh export taken after the calendar-reminder feature and all three bug fixes, committed in `0e43b43`.
 - [x] Dashboard column width fixed (`Dashboard.css`, `App.css`) so the new "נקבעה תזכורת ביומן" column isn't cut off
+
+## Milestone 7 — Required Tests (section 11 of the assignment) — evidence
+
+All ten required tests have been run against the real webhooks/app. Evidence pointers below (sheet = "Document Processing Log"; screenshots/videos are in the Drive folder "SMART DOCUMENT ASSISTANT -WEB").
+
+- [x] **Happy path — invoice due tomorrow:** High-urgency + real deadline rows (e.g. `exec-71395`, `urgent_final...`) — urgent Gmail sent, badge shows High, real Calendar event created (`Calendar Reminder = Yes`).
+- [x] **Normal document — internal report:** Medium/Low rows (e.g. `test_03_report.docx`, `medium_large_test_document`) — false branch of the IF node responded correctly, no timeout.
+- [x] **Missing information — complaint with no deadline:** multiple sheet rows show the literal text `Not found` in the Deadline column (e.g. row 27, `test_01_invoice`) rather than an empty cell or an invented date.
+- [x] **Unsupported file — .png/.xlsx/.zip:** rejected client-side before any request reaches n8n (see F7 Finding 1 in `CONTRACT.md` §2, and video "5. העלאת קובץ לא נתמך כמו תמונה").
+- [x] **Large document:** `medium_large_test_document.pdf` (~4.3MB) accepted; `large_test_document.pdf` (~11.3MB) rejected client-side with no network request (video "4. העלאת קובץ בינוני גדול והעלאת קובץ גדול מידי"; `VITE_MAX_FILE_MB` check, `PROMPTS.md` #9).
+- [x] **Double submission:** recorded in video "2. לחיצה כפולה על שליחה" — pressing Send twice quickly produces exactly one sheet row (Send button disabled during the request, per F2).
+- [x] **n8n unavailable:** app shows a readable "can't reach the server" message with the workflow deactivated/unreachable (video "3. בדיקה לא זמין"; `fetchWithTimeout` in `client.js`, F7 Finding 2).
+- [x] **Wrong secret:** confirmed real webhook returns `403` (not `401`) on a bad `x-api-key`; app shows a configuration-problem message (`CONTRACT.md` intro note + `client.js` 403 check).
+- [x] **Review action:** marking a document reviewed updates `Status` / `Reviewed By` / `Review Note` in the sheet, dashboard reflects it after refresh (screenshots `04_detail_view.png`, `06_updated_spreadsheet.png`).
+- [x] **Both entry points:** verified Sep 13 — see `CONTRACT.md` §4 for full evidence (`07_both_entry_points_test.txt`, sheet row 37, screenshot `2026-09-13 144815`).
+
+**Minimum success criteria (§11.1):** 5+ documents required — the sheet has 20+ rows carrying an app-assigned `exec-...` id (Workflow A), well past the minimum, alongside Part-1-only rows (no `exec-...` id) proving the Drive trigger is still live.

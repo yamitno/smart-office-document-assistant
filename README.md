@@ -55,6 +55,20 @@ A small React web app that sits in front of an existing n8n automation (Part 1) 
 |---|---|
 | ![Error state](screenshots/05_error_state.png) | ![Updated spreadsheet](screenshots/06_updated_spreadsheet.png) |
 
+## Part 1 bug fix — evidence
+
+While integrating Part 2, a pre-existing bug was found in Part 1's own n8n workflow (the Google Drive-triggered flow): every field in the "Record (Google Sheets)" node was stuck in **Expression** mode while still containing the literal `{{ }}` wrapper syntax, so instead of evaluating (e.g. `{{$now.toISO()}}`), n8n silently wrote the raw unevaluated text into the sheet. The fix (switching each field to **Fixed** mode and re-entering the same expression) was applied directly to the live, published Part 1 workflow and verified end-to-end with a fresh test file dropped into the Drive folder.
+
+| Node output — all fields now evaluate correctly | Execution succeeded end-to-end |
+|---|---|
+| ![Fixed node output](screenshots/07_part1_node_output_fixed.jpg) | ![Execution success](screenshots/08_part1_execution_success.jpg) |
+
+| Sheet before vs. after the fix (same "Document Processing Log") |
+|---|
+| ![Sheet before and after](screenshots/09_part1_sheet_before_after.jpg) |
+
+This also doubles as evidence for the "both entry points" Required Test (Section 11): the fixed Part 1 Drive trigger keeps appending rows to the exact same sheet the app's Workflow A and Workflow B read from and write to.
+
 ### Supported file types
 
 `application/pdf`, `text/plain`, and `application/vnd.openxmlformats-officedocument.wordprocessingml.document` (`.docx`).

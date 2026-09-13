@@ -4,6 +4,10 @@ A small React web app that sits in front of an existing n8n automation (Part 1) 
 
 **The app never re-implements any business logic.** It does not call an AI model, does not write to Google Sheets, does not send email, and does not decide what "urgent" means. All of that stays exactly where it was in Part 1, inside n8n. The app only collects input, calls n8n's webhooks, and displays whatever n8n returns.
 
+## Live Demo
+
+**[smart-office-document-assistant.vercel.app](https://smart-office-document-assistant.vercel.app)** — deployed on Vercel, connected to the live n8n workflows described below.
+
 ## Architecture
 
 ```

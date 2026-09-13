@@ -37,6 +37,24 @@ A small React web app that sits in front of an existing n8n automation (Part 1) 
 | F7 | Readable error states for every failure mode (see table below) | all screens |
 | F8 | All configuration (URLs, secret, size limit) comes from `.env`, never hardcoded | — |
 
+## Demo video
+
+[`demo/demo_video.mp4`](demo/demo_video.mp4) (4:04) — covers the full flow (upload → result → dashboard/email/sheet → filters → mark as reviewed), plus three failure scenarios: an unsupported file type, an n8n workflow that's been unpublished (server unreachable), and a file that exceeds the size limit alongside one that doesn't.
+
+## Screenshots
+
+| Upload screen | Result view |
+|---|---|
+| ![Upload screen](screenshots/01_upload_screen.png) | ![Result view](screenshots/02_result_view.png) |
+
+| Dashboard with filter applied | Detail view |
+|---|---|
+| ![Dashboard filtered](screenshots/03_dashboard_filtered.png) | ![Detail view](screenshots/04_detail_view.png) |
+
+| Error state | Updated spreadsheet |
+|---|---|
+| ![Error state](screenshots/05_error_state.png) | ![Updated spreadsheet](screenshots/06_updated_spreadsheet.png) |
+
 ### Supported file types
 
 `application/pdf`, `text/plain`, and `application/vnd.openxmlformats-officedocument.wordprocessingml.document` (`.docx`).
